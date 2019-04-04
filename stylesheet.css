@@ -1,0 +1,16 @@
+#canvas{
+    background: black;
+}
+
+*{
+    background: black;
+}
+
+html, body{
+    max-height:100vh;
+    width:100vw;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    background: #FBFFFF;
+}
