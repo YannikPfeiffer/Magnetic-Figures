@@ -191,9 +191,9 @@ document.addEventListener('keydown',function(e){
         newParticleGroup(field.x/4,field.y/2);
     }
     if (e.code === "KeyH") {
-        newAttractor(field.x * 5/12, field.y / 3);
-        newParticleGroup((field.x * 5/12) - 100, field.y * 2 / 3);
-        newParticleGroup((field.x * 5/12) + 100, field.y * 2 / 3);
+        newAttractor(field.x /2, field.y / 3);
+        newParticleGroup((field.x /2) - 100, field.y * 2 / 3);
+        newParticleGroup((field.x /2) + 100, field.y * 2 / 3);
     }
 });
 
