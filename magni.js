@@ -1,11 +1,39 @@
+/**
+ * The HTML Element of the Canvas
+ * @type {HTMLCanvasElement}
+ */
 const canvasElem = document.getElementsByTagName("canvas")[0];
+/**
+ * The Rendering Context
+ * @type {CanvasRenderingContext2D | WebGLRenderingContext}
+ */
 const ctx = canvasElem.getContext('2d');
 
-var particles = [];
-var attractors = [];
-var motionActive = false;
-var tonsOfParticles = false;
-var hue = 0;
+/**
+ * All registered Particles
+ * @type {Array}
+ */
+let particles = [];
+/**
+ * All registered Attractors
+ * @type {Array}
+ */
+let attractors = [];
+/**
+ * Is the motion activated?
+ * @type {boolean}
+ */
+let motionActive = false;
+/**
+ * Should there be 10x more particles?
+ * @type {boolean}
+ */
+let tonsOfParticles = false;
+/**
+ * The color of the particles
+ * @type {number}
+ */
+let hue = 0;
 
 //Drawing properties
 const strokeColor = `hsl(100,100%,80%,0.01)`;
@@ -17,7 +45,7 @@ ctx.lineCap = 'round';
 ctx.lineWidth = "2px";
 
 const G = 0.5;
-const field = {x:100,y:100};
+let field = {x:100,y:100};
 
 function randomVelocity(max,randomAmplifier=false){
     let degree = Math.random()*360;
@@ -74,7 +102,7 @@ function newParticle(x,y){
     ctx.moveTo(x, y);
     ctx.lineTo(x, y);
     ctx.stroke();
-    particles[particles.length] = particle;
+    particles.push(particle);
 }
 
 function newAttractor(x,y){
@@ -88,7 +116,7 @@ function newAttractor(x,y){
     ctx.lineTo(x, y);
     ctx.stroke();
     ctx.lineWidth = mainLineWidth;
-    attractors[attractors.length] = attractor;
+    attractors.push(attractor);
 }
 
 
