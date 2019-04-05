@@ -166,7 +166,7 @@ function drawParticles() {
         let particle = particles[i];
         let x = particle.posVector.x;
         let y = particle.posVector.y;
-        ctx.strokeStyle = `hsl(${hue},100%,80%,0.1)`;
+        ctx.strokeStyle = `hsl(${hue},100%,50%,0.1)`;
 
         drawPoint(x,y);
 
