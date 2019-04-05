@@ -1,6 +1,6 @@
-#Magentic Figures
+# Magentic Figures
 
-##Keymap:
+## Keymap:
 
 * P - Amp Up number of particles placed by x10
 * A,S,D,F,G - Temporary figures that have been premodeled
