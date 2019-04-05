@@ -1,7 +1,15 @@
 #canvas{
     background: black;
+    z-index: 0;
+    position: absolute;
 }
 
+#grid{
+    pointer-events: none;
+    background: transparent;
+    position: absolute;
+    z-index: 1;
+}
 *{
     background: black;
 }

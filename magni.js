@@ -2,12 +2,15 @@
  * The HTML Element of the Canvas
  * @type {HTMLCanvasElement}
  */
-const canvasElem = document.getElementsByTagName("canvas")[0];
+const canvasElem = document.getElementById("canvas");
 /**
  * The Rendering Context
  * @type {CanvasRenderingContext2D | WebGLRenderingContext}
  */
 const ctx = canvasElem.getContext('2d');
+
+const gridElem = document.getElementById("grid");
+const gridCtx = gridElem.getContext('2d');
 
 /**
  * All registered Particles
@@ -31,9 +34,10 @@ let motionActive = false;
 let tonsOfParticles = false;
 /**
  * The color of the particles
- * @type {number}
+ * @type {boolean}
  */
 let mirrored = false;
+let gridVisible = false;
 let hue = 0;
 
 //Drawing properties
@@ -45,7 +49,7 @@ ctx.lineJoin = 'round';
 ctx.lineCap = 'round';
 ctx.lineWidth = "2px";
 
-let G = 0.5; //Grafitational constant
+let G = 0.5; //Gravitational constant
 let field = {x: 100, y: 100};
 
 function randomVelocity(max, randomAmplifier = false) {
@@ -99,10 +103,7 @@ function newParticle(x, y) {
     let accVector = {x: 0, y: 0};
     let weight = 1;
     let particle = {posVector: posVector, velVector: velVector, accVector: accVector, weight: weight};
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x, y);
-    ctx.stroke();
+    drawPoint(x,y);
     particles.push(particle);
 }
 
@@ -112,14 +113,10 @@ function newAttractor(x, y) {
     let attractor = {posVector: posVector, weight: weight};
     ctx.lineWidth = 5;
     ctx.strokeStyle = `rgba(255,255,255)`;
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x, y);
-    ctx.stroke();
+    drawPoint(x,y);
     ctx.lineWidth = mainLineWidth;
     attractors.push(attractor);
 }
-
 
 function calcAcceleration(element) {
 
@@ -156,6 +153,13 @@ function attractionForce(m1, m2, d, G) {
     return (G * (m1 + m2)) / (d * d);
 }
 
+function drawPoint(x,y){
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+}
+
 function drawParticles() {
     for (let i = 0; i < particles.length; i++) {
 
@@ -164,50 +168,172 @@ function drawParticles() {
         let y = particle.posVector.y;
         ctx.strokeStyle = `hsl(${hue},100%,80%,0.1)`;
 
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(x, y);
-        ctx.stroke();
+        drawPoint(x,y);
+
         if (mirrored) {
-            ctx.beginPath();
-            ctx.moveTo(field.x - x, y);
-            ctx.lineTo(field.x - x, y);
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.moveTo(x, field.y - y);
-            ctx.lineTo(x, field.y - y);
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.moveTo(field.x - x, field.y - y);
-            ctx.lineTo(field.x - x, field.y - y);
-            ctx.stroke();
+            drawPoint(field.x - x, y);
+            drawPoint(x, field.y - y);
+            drawPoint(field.x - x, field.y - y);
         }
 
     }
 }
 
+function reset() {
+    particles = [];
+    attractors = [];
+
+    G = 0.5;
+    let h = canvasElem.height;
+    let w = canvasElem.width;
+    ctx.clearRect(0, 0, w, h);
+
+    tonsOfParticles = false;
+    mirrored = false;
+    motionActive = false;
+}
+
+function toggleGrid(visible){
+    if (visible){
+        drawGrid(6);
+    } else {
+        gridCtx.clearRect(0,0,field.x,field.y);
+    }
+}
+
+function drawGrid(iterations){
+
+    let hue = 0;
+    let additiveHue = 360/iterations;
+
+    gridCtx.lineWidth = iterations/2; //${(iterations*2)}
+    let i = 0;
+    function drawLineX(x1,x2,hue,i){
+        gridCtx.strokeStyle = `hsl(${hue},100%,80%,0.5`;
+        let lineWidth = (iterations-i)/2;
+        gridCtx.lineWidth = lineWidth;
+        if (i===iterations)return;
+        let x = (x1+x2)/2;
+        gridCtx.beginPath();
+        gridCtx.moveTo(x,field.y);
+        gridCtx.lineTo(x,0);
+        gridCtx.stroke();
+        i++;
+        hue += additiveHue;
+        drawLineX(x1,x,hue,i);
+        drawLineX(x,x2,hue,i);
+    }
+    function drawLineY(y1,y2,hue,i){
+        let lineWidth = (iterations-i)/2;
+        gridCtx.lineWidth = lineWidth;
+        gridCtx.strokeStyle = `hsl(${hue},100%,80%,0.5`;
+        if (i===iterations)return;
+        let y = (y1+y2)/2;
+        let dif = y2-y1;
+
+        gridCtx.beginPath();
+        gridCtx.moveTo(field.x,y);
+        gridCtx.lineTo(0,y);
+        gridCtx.stroke();
+
+        /*
+        for (let k = 0; (y-k*dif) > 0;k++){
+            let yeet = (y-k*dif);
+            gridCtx.beginPath();
+            gridCtx.moveTo(field.x,yeet);
+            gridCtx.lineTo(0,yeet);
+            gridCtx.stroke();
+        }
+
+        for (let k = 0; (k*dif+y) < field.y;k++){
+            let yeet = (k*dif+y);
+            gridCtx.beginPath();
+            gridCtx.moveTo(field.x,yeet);
+            gridCtx.lineTo(0,yeet);
+            gridCtx.stroke();
+        }
+        */
+
+        i++;
+        hue += additiveHue;
+        drawLineY(y1,y,hue,i);
+        drawLineY(y,y2,hue,i);
+
+    }
+    let middleX = field.x/2;
+    let middleY = field.y/2;
+    let init = Math.max(field.x,field.y)/2;
+    drawLineX(middleX-init,middleX+init,hue,i);
+    drawLineY(middleY-init,middleY+init,hue,i);
+}
+
+function drawGridRelativeToScreen(iterations){  //not recommended
+
+    let hue = 0;
+    let additiveHue = 360/iterations;
+
+    gridCtx.lineWidth = "5px";
+    let i = 0;
+    function drawLineX(x1,x2,hue,i){
+        gridCtx.strokeStyle = `hsl(${hue},100%,80%,0.5`;
+        if (i===iterations)return;
+        let x = (x1+x2)/2;
+        gridCtx.beginPath();
+        gridCtx.moveTo(x,field.y);
+        gridCtx.lineTo(x,0);
+        gridCtx.stroke();
+        i++;
+        hue += additiveHue;
+        drawLineX(x1,x,hue,i);
+        drawLineX(x,x2,hue,i);
+    }
+    function drawLineY(y1,y2,hue,i){
+        gridCtx.strokeStyle = `hsl(${hue},100%,80%,0.5`;
+        if (i===iterations)return;
+        let y = (y1+y2)/2;
+        gridCtx.beginPath();
+        gridCtx.moveTo(field.x,y);
+        gridCtx.lineTo(0,y);
+        gridCtx.stroke();
+        i++;
+        hue += additiveHue;
+        drawLineY(y1,y,hue,i);
+        drawLineY(y,y2,hue,i);
+
+    }
+    drawLineX(0,field.x,hue,i);
+    drawLineY(0,field.y,hue,i);
+}
 //window.addEventListener('resize',updateCanvasSize,false);
 
+//Event Listeners
 document.addEventListener('keydown', function (e) {
 
+    if (e.code === "ControlLeft") { //toggle for grid
+        gridVisible = !gridVisible;
+        toggleGrid(gridVisible);
+    }
     if (e.code === "BracketRight") {
         G = G + 0.1;
     }
+
     if (e.code === "Backslash") {
         G = G - 0.1;
+        if (G<=0){
+            G=0.1;
+            console.log("here");
+        }
     }
 
-    if (e.code === "KeyM") {
+    if (e.code === "KeyM") { //enables mirror divided by 4
         mirrored = !mirrored;
-    }
-
+    } //activates mirrors
 
     if (e.code === "KeyP") {
         tonsOfParticles = !tonsOfParticles;
         console.log(tonsOfParticles);
-    }
+    } //amplifies or decreases particle count by 10x
+
     if (e.code === "KeyR") { //R for RESET
         reset();
     }
@@ -251,20 +377,6 @@ document.addEventListener('keydown', function (e) {
         newParticleGroup((field.x / 2) + 100, field.y * 2 / 3);
     }
 });
-
-function reset() {
-    particles = [];
-    attractors = [];
-
-    G = 0.5;
-    let h = canvasElem.height;
-    let w = canvasElem.width;
-    ctx.clearRect(0, 0, w, h);
-
-    tonsOfParticles = false;
-    mirrored = false;
-    motionActive = false;
-}
 
 canvasElem.addEventListener('mousedown', function (e) {
     let x = e.offsetX;
