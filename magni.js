@@ -27,6 +27,8 @@ let attractors = [];
  * @type {boolean}
  */
 let motionActive = false;
+
+let cannons = [];
 /**
  * Should there be 10x more particles?
  * @type {boolean}
@@ -36,6 +38,8 @@ let tonsOfParticles = false;
  * The color of the particles
  * @type {boolean}
  */
+let cannonMode = false;
+let cannonsActive = false;
 let mirrored = false;
 let gridVisible = false;
 let hue = 0;
@@ -43,14 +47,14 @@ let hue = 0;
 //Drawing properties
 const strokeColor = `hsl(100, 100%, 80%, 0.01)`;
 const mainLineWidth = 1;
-let gridIterations = 5;
+let gridIterations = 6;
 ctx.strokeStyle = strokeColor;
 
 ctx.lineJoin = 'round';
 ctx.lineCap = 'round';
 ctx.lineWidth = "2px";
 
-let G = 0.5; //Gravitational constant
+let G = 1; //Gravitational constant
 let field = {x: 100, y: 100};
 
 function randomVelocity(max, randomAmplifier = false) {
@@ -88,24 +92,60 @@ function setup() {
 
 }
 
+function newCannon(x, y, velVector, fireRate, particleCount=10000, velRandomFactor=false){
+    console.log("newCannon: velvector: "+velVector.x,velVector.y);
+    ctx.strokeStyle = `rgba(255,255,255)`;
+    ctx.beginPath();
+    ctx.ellipse(x, y, 5, 5,0,0,360);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x,y);
+    ctx.lineTo(x+(velVector.x*5),y+(velVector.y*5));
+    ctx.stroke();
+    //let timeout = 1000/fireRate;
+    let particlesFired = 0;
+    let velVec = velVector;
+    this.interval = setInterval(function(){
+        if (motionActive && cannonsActive) {
+            if (velRandomFactor) {
+                let randomAmp = Math.random()*1;
+                //console.log(randomAmp);
+                velVec = factorVector(velVector,randomAmp);
+            }
+
+            newParticle(x, y, velVec);
+            particlesFired++;
+            //console.log(particlesFired);
+            if (particleCount<particlesFired){
+                console.log("cannon is done firing.");
+                clearInterval(this.interval);
+            }
+        }
+    },1000/fireRate);
+    let cannon = {particlesFired:particlesFired,velVec:velVec,interval:interval};
+    cannons.push(cannon);
+}
+
 function newParticleGroup(x, y, count = 1000) {
     if (tonsOfParticles) {
         count = count * 10;
         console.log("ye", count);
     }
     for (let i = 0; i < count; i++) {
-        newParticle(x, y);
+        let velocity = randomVelocity(1);
+        newParticle(x, y,velocity);
     }
 }
 
-function newParticle(x, y) {
+function newParticle(x, y,velocityVector) {
     let posVector = {x: x, y: y};
-    let velVector = randomVelocity(1);
+    let velVector = velocityVector;
     let accVector = {x: 0, y: 0};
     let weight = 1;
     let particle = {posVector: posVector, velVector: velVector, accVector: accVector, weight: weight};
     drawPoint(x,y);
     particles.push(particle);
+    //console.log("new Particle",velVector);
 }
 
 function newAttractor(x, y) {
@@ -183,6 +223,13 @@ function drawParticles() {
 function reset() {
     particles = [];
     attractors = [];
+    for (let i = 0; i<cannons.length; i++){
+        clearInterval(cannons[i].interval);
+    }
+    cannons = [];
+
+    cannonMode = false;
+    cannonsActive = false;
 
     G = 0.5;
     let h = canvasElem.height;
@@ -327,16 +374,13 @@ document.addEventListener('keydown', function (e) {
         gridVisible = !gridVisible;
         toggleGrid(gridVisible);
     }
+
     if (e.code === "BracketRight") {
         G = G + 0.1;
     }
 
     if (e.code === "Backslash") {
         G = G - 0.1;
-        if (G<=0){
-            G=0.1;
-            console.log("here");
-        }
     }
 
     if (e.code === "KeyM") { //enables mirror divided by 4
@@ -390,6 +434,12 @@ document.addEventListener('keydown', function (e) {
         newParticleGroup((field.x / 2) - 100, field.y * 2 / 3);
         newParticleGroup((field.x / 2) + 100, field.y * 2 / 3);
     }
+    if (e.code === "KeyC") { //toggle cannon mode
+        cannonMode = !cannonMode;
+    }
+    if (e.code === "KeyV") {
+        cannonsActive = ! cannonsActive;
+    }
 });
 
 canvasElem.addEventListener('mousedown', function (e) {
@@ -401,7 +451,13 @@ canvasElem.addEventListener('mousedown', function (e) {
         y = vector.y;
     }
     if (e.button === 0) {
-        newParticleGroup(x, y, 1000);
+        if (cannonMode){
+            //console.log("New cannon");
+            let velVector = randomVelocity(1);
+            newCannon(x,y,velVector,10,10000,true);
+        }else {
+            newParticleGroup(x, y, 1000);
+        }
     }
     if (e.button === 2) {
         newAttractor(x, y);
