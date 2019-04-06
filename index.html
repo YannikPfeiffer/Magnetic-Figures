@@ -29,15 +29,26 @@
 <canvas id="canvas" width="1920" height="1600" style="overflow:hidden"></canvas>
 
 <!-- UI-Overlay -->
-<div class="ui container">
-    <i class="ui-icon-open ui-icon-open-options fas fa-cog" onclick="toggleOptions()"></i>
-    <i class="ui-icon-open ui-icon-open-keymap fas fa-keyboard" onclick="toggleKeyMap()"></i>
+<div class="ui container-fluid">
+    <i class="ui-icon-open left fas fa-cog" onclick="toggleOptions()"></i>
+    <i class="ui-icon-open right fas fa-keyboard" onclick="toggleKeyMap()"></i>
     <div class="row">
         <div class="col-3">
 
             <!-- Options -->
             <div class="ui-options">
-                <i class="ui-icon-close fas fa-times" onclick="toggleOptions()"></i>
+                <!-- Headline -->
+                <div class="container">
+                    <div class="row">
+                        <div class="col-2">
+                            <i class="ui-icon-close fas fa-times" onclick="toggleOptions()"></i>
+                        </div>
+                        <div class="col-10">
+                            Options:
+                        </div>
+                    </div>
+                </div>
+                <hr/>
                 <div class="ui-keymap-binding container">
                     <div class="row">
                         <div class="col-6">
@@ -52,7 +63,7 @@
                 <p>R - Reset the screen/canvas</p>
                 <p>Spacebar - Pause/Unpause movement</p>
                 <p>P - Amp Up number of particles placed by x10</p>
-                <p>1, 2, 3, 4, 5, 6 - Temporary figures that have been premodeled</p>
+
                 <p>LCtrl - Toggle grid</p>
                 <p>C - toggles between particles and cannons ' F - fire the cannons!</p>
                 <p>M - Toggle 4 way mirror</p>
@@ -67,18 +78,38 @@
 
             <!-- Key-Map -->
             <div class="ui-keymap">
-                <i class="ui-icon-close fas fa-times" onclick="toggleKeyMap()"></i>
+                <!-- Headline -->
+                <div class="container">
+                    <div class="row">
+                        <div class="col-10">
+                            Keys:
+                        </div>
+                        <div class="col-2">
+                            <i class="ui-icon-close fas fa-times" onclick="toggleKeyMap()"></i>
+                        </div>
+                    </div>
+                </div>
+                <hr/>
                 <div class="ui-keymap-binding container">
                     <div class="row">
                         <div class="col-6">
-                            LMB
+                            <span class="key">LMB</span>
                         </div>
                         <div class="col-6">
                             Place particles/cannons
                         </div>
                     </div>
                 </div>
-                <p>RMB - Place attractor</p>
+                <div class="ui-keymap-binding container">
+                    <div class="row">
+                        <div class="col-6">
+                            <span class="key">RMB</span>
+                        </div>
+                        <div class="col-6">
+                            Place attractor
+                        </div>
+                    </div>
+                </div>
                 <p>R - Reset the screen/canvas</p>
                 <p>Spacebar - Pause/Unpause movement</p>
                 <p>P - Amp Up number of particles placed by x10</p>

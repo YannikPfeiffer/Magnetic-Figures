@@ -10,9 +10,6 @@
     position: absolute;
     z-index: 1;
 }
-*{
-    background: black;
-}
 
 html, body{
     max-height:100vh;
