@@ -8,5 +8,10 @@
 * Spacebar - Pause movement
 * LMB - Place particles
 * RMB - Place attractor
-
+* LCtrl - Toggle grid
+* \ - Decrease gravitational force
+* ] - Increase gravitational force
+* M - Toggle 4 way mirror
+* C - Toggle cannon mode
+* V - Shoot cannons
 Have fun!
