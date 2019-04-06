@@ -43,6 +43,7 @@ let hue = 0;
 //Drawing properties
 const strokeColor = `hsl(100, 100%, 80%, 0.01)`;
 const mainLineWidth = 1;
+let gridIterations = 5;
 ctx.strokeStyle = strokeColor;
 
 ctx.lineJoin = 'round';
@@ -195,7 +196,7 @@ function reset() {
 
 function toggleGrid(visible){
     if (visible){
-        drawGrid(6);
+        drawGrid(gridIterations);
     } else {
         gridCtx.clearRect(0,0,field.x,field.y);
     }
@@ -235,24 +236,6 @@ function drawGrid(iterations){
         gridCtx.moveTo(field.x,y);
         gridCtx.lineTo(0,y);
         gridCtx.stroke();
-
-        /*
-        for (let k = 0; (y-k*dif) > 0;k++){
-            let yeet = (y-k*dif);
-            gridCtx.beginPath();
-            gridCtx.moveTo(field.x,yeet);
-            gridCtx.lineTo(0,yeet);
-            gridCtx.stroke();
-        }
-
-        for (let k = 0; (k*dif+y) < field.y;k++){
-            let yeet = (k*dif+y);
-            gridCtx.beginPath();
-            gridCtx.moveTo(field.x,yeet);
-            gridCtx.lineTo(0,yeet);
-            gridCtx.stroke();
-        }
-        */
 
         i++;
         hue += additiveHue;
@@ -303,6 +286,37 @@ function drawGridRelativeToScreen(iterations){  //not recommended
     }
     drawLineX(0,field.x,hue,i);
     drawLineY(0,field.y,hue,i);
+}
+
+function snapToNearestInterception(x,y){
+
+    let init = Math.max(field.x,field.y)/2;
+    let interval = Math.max(field.x,field.y);
+
+    for (let i = 0; i<gridIterations;i++){
+        interval = interval/2;
+    }
+
+
+    let yOffset = (field.y/2)%interval;
+    let deltaX = x%interval;
+    let deltaY = y%(interval); //-yOffset/(field.y/interval)
+
+    console.log("yOffset: "+yOffset);
+    console.log("interval: "+interval,"fieldX: "+field.x,"fieldY: "+field.y);
+    console.log("deltaX",deltaX,"deltaY",deltaY);
+
+    if (deltaX<interval/2){
+        x = x-deltaX;
+    } else {
+        x = x+(interval-deltaX);
+    }
+    if (deltaY-yOffset<interval/2){
+        y = y-deltaY+yOffset; //-yOffset
+    } else {
+        y = y+(interval-deltaY)+yOffset; //-yOffset
+    }
+    return {x:x,y:y}
 }
 //window.addEventListener('resize',updateCanvasSize,false);
 
@@ -381,6 +395,11 @@ document.addEventListener('keydown', function (e) {
 canvasElem.addEventListener('mousedown', function (e) {
     let x = e.offsetX;
     let y = e.offsetY;
+    if (gridVisible){
+        let vector = snapToNearestInterception(x,y);
+        x = vector.x;
+        y = vector.y;
+    }
     if (e.button === 0) {
         newParticleGroup(x, y, 1000);
     }
