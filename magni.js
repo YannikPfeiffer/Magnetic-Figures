@@ -379,7 +379,7 @@ document.addEventListener('keydown', function (e) {
         G = G + 0.1;
     }
 
-    if (e.code === "Backslash") {
+    if (e.code === "Slash") {
         G = G - 0.1;
     }
 
@@ -395,49 +395,53 @@ document.addEventListener('keydown', function (e) {
     if (e.code === "KeyR") { //R for RESET
         reset();
     }
+    
     if (e.code === "Space") {
         motionActive = !motionActive;
         console.log("Spacebar");
     }
-    if (e.code === "KeyJ") {
-        newAttractor(field.x / 2, field.y / 2);
-        newParticleGroup(field.x / 2 - 50, field.y / 2 - 50);
-    }
-    if (e.code === "KeyA") {
+
+    if (e.code === "Digit1") {
         newAttractor(field.x / 2, field.y / 2);
         newAttractor(field.x / 3, field.y / 2);
         newAttractor(field.x / 1.5, field.y / 2);
         newParticleGroup(field.x / 2, field.y / 4);
     } //creates a bell
-    if (e.code === "KeyS") {
+    if (e.code === "Digit2") {
         newAttractor(field.x / 4, field.y / 2);
         newAttractor(field.x - field.x / 4, field.y / 2);
         newParticleGroup(field.x / 2, field.y / 2);
     }
-    if (e.code === "KeyD") { //trippy
+    if (e.code === "Digit3") { //trippy
         newParticleGroup(field.x / 4, field.y / 2);
         newParticleGroup(field.x - field.x / 4, field.y / 2);
         newAttractor(field.x / 2, field.y / 2);
     }
-    if (e.code === "KeyF") {
+    if (e.code === "Digit4") {
         newParticleGroup(field.x / 2.5, field.y / 1.66);
         newParticleGroup(field.x / 1.66, field.y / 1.66);
         newParticleGroup(field.x / 2, field.y / 3);
         newAttractor(field.x / 2, field.y / 2);
     }
-    if (e.code === "KeyG") {
+    if (e.code === "Digit5") {
         newAttractor(field.x / 2, field.y / 2);
         newParticleGroup(field.x / 4, field.y / 2);
     }
-    if (e.code === "KeyH") {
+    if (e.code === "Digit6") {
         newAttractor(field.x / 2, field.y / 3);
         newParticleGroup((field.x / 2) - 100, field.y * 2 / 3);
         newParticleGroup((field.x / 2) + 100, field.y * 2 / 3);
     }
+    if (e.code === "Digit7") {
+        newAttractor(field.x / 2, field.y / 2);
+        newParticleGroup(field.x / 2 - 50, field.y / 2 - 50);
+    }
+
     if (e.code === "KeyC") { //toggle cannon mode
         cannonMode = !cannonMode;
     }
-    if (e.code === "KeyV") {
+
+    if (e.code === "KeyF") {
         cannonsActive = ! cannonsActive;
     }
 });
