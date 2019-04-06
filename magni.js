@@ -13,6 +13,9 @@ const gridElem = document.getElementById("grid");
 
 const gridCtx = gridElem.getContext('2d');
 
+const attractorElem = document.getElementById("attractors");
+const attractorCtx = attractorElem.getContext('2d');
+
 /**
  * All registered Particles
  * @type {Array}
@@ -45,6 +48,8 @@ let mirrored = false;
 let gridVisible = false;
 let hue = 0;
 
+let attractorsVisible = true;
+
 //Drawing properties
 const strokeColor = `hsl(100, 100%, 80%, 0.01)`;
 const mainLineWidth = 1;
@@ -54,6 +59,10 @@ partCtx.strokeStyle = strokeColor;
 partCtx.lineJoin = 'round';
 partCtx.lineCap = 'round';
 partCtx.lineWidth = "1px";
+
+attractorCtx.lineJoin = 'round';
+attractorCtx.lineCap = 'round';
+attractorCtx.lineWidth = "2px";
 
 let G = 1; //Gravitational constant
 let field = {x: 100, y: 100};
@@ -152,11 +161,35 @@ function newAttractor(x, y) {
     let posVector = {x: x, y: y};
     let weight = 1;
     let attractor = {posVector: posVector, weight: weight};
-    partCtx.lineWidth = 5;
-    partCtx.strokeStyle = `rgba(255,255,255)`;
-    drawPoint(x,y);
-    partCtx.lineWidth = mainLineWidth;
+    attractorCtx.lineWidth = 5;
+    attractorCtx.strokeStyle = `rgba(255, 255, 255)`;
+    drawAttractor(x, y);
+    console.log("draw attractor");
+    attractorCtx.lineWidth = mainLineWidth;
     attractors.push(attractor);
+}
+
+function showAttractors() {
+    attractors.forEach(function (attractor) {
+       attractorCtx.lineWidth = 5;
+       attractorCtx.strokeStyle = `rgb(255, 255,255)`;
+       drawAttractor(attractor.posVector.x, attractor.posVector.y)
+    })
+}
+
+function drawAttractor(x, y) {
+    attractorCtx.beginPath();
+    attractorCtx.moveTo(x, y);
+    attractorCtx.lineTo(x, y);
+    attractorCtx.stroke();
+}
+
+function toggleAttractors() {
+    if (attractorsVisible) {
+        showAttractors();
+    } else {
+        attractorCtx.clearRect(0, 0, field.x, field.y);
+    }
 }
 
 function calcAcceleration(element) {
@@ -235,6 +268,7 @@ function reset() {
     let h = particleLayerElem.height;
     let w = particleLayerElem.width;
     partCtx.clearRect(0, 0, w, h);
+    attractorCtx.clearRect(0, 0, w, h);
 
     tonsOfParticles = false;
     mirrored = false;
@@ -443,6 +477,11 @@ document.addEventListener('keydown', function (e) {
 
     if (e.code === "KeyF") {
         cannonsActive = ! cannonsActive;
+    }
+
+    if (e.code === "KeyH") {
+        attractorsVisible = !attractorsVisible;
+        toggleAttractors();
     }
 });
 

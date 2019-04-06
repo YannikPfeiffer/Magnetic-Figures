@@ -11,7 +11,15 @@ canvas{
 #grid{
     pointer-events: none;
     background: transparent;
-    z-index: 1;
+    position: absolute;
+    z-index: 2;
+}
+
+#attractors {
+    pointer-events: none;
+    background: transparent;
+    position: absolute;
+    z-index: 2;
 }
 
 #figureLayer{
