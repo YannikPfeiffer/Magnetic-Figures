@@ -240,7 +240,7 @@ function drawParticles() {
         let particle = particles[i];
         let x = particle.posVector.x;
         let y = particle.posVector.y;
-        partCtx.strokeStyle = `hsl(${hue},100%,50%,0.1)`;
+        partCtx.strokeStyle = `hsl(${hue},100%,50%,0.01)`;
 
         drawPoint(x,y);
 
@@ -497,7 +497,7 @@ particleLayerElem.addEventListener('mousedown', function (e) {
         if (cannonMode){
             //console.log("New cannon");
             let velVector = randomVelocity(1);
-            newCannon(x,y,velVector,0,10000,true);
+            newCannon(x,y,velVector,0,10000,0.1);
         }else {
             newParticleGroup(x, y, 1000);
         }
