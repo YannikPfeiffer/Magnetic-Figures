@@ -1,0 +1,55 @@
+@colorScheme:{
+  background: #2f2e33;
+}
+
+.ui{
+  color: white;
+  width: 100%;
+  max-width: 100%;
+  &-options{
+    display: none;
+    background-color: @colorScheme[background];
+    position: fixed;
+    height: 100vh;
+    .ui-icon-close{
+      left: 0;
+      margin-left: 0.25em;
+    }
+  }
+  &-keymap{
+    display: none;
+    background-color: @colorScheme[background];
+    position: fixed;
+    height: 100vh;
+    .ui-icon-close{
+      display: block;
+      text-align: right;
+    }
+  }
+  &-icon{
+    &-open{
+      &-options{
+        left: 0;
+        margin-left: 0.25em;
+      }
+      &-keymap{
+        right: 0;
+        margin-right: 0.25em;
+      }
+      display: block;
+      margin-top: 0.25em;
+      position: fixed;
+      top: 0;
+      color: white;
+      font-size: 5em;
+    }
+    &-close{
+      margin-top: 0.25em;
+      position: relative;
+      top: 0;
+      color: white;
+      font-size: 5em;
+    }
+  }
+}
+
