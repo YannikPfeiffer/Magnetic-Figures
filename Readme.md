@@ -2,11 +2,21 @@
 
 ## Keymap:
 
-* P - Amp Up number of particles placed by x10
-* A, S, D, F, G, H - Temporary figures that have been premodeled
-* R - Reset the screen/canvas
-* Spacebar - Pause movement
-* LMB - Place particles
+
+* LMB - Place particles/cannons
 * RMB - Place attractor
+
+* R - Reset the screen/canvas
+* Spacebar - Pause/Unpause movement
+* P - Amp Up number of particles placed by x10
+* 1, 2, 3, 4, 5, 6 - Temporary figures that have been premodeled
+
+* LCtrl - Toggle grid
+* C - toggles between particles and cannons
+' F - fire the cannons!
+
+* M - Toggle 4 way mirror
+* "+" - Raise gravitational constant
+* "-" - Lower gravitational constant
 
 Have fun!
