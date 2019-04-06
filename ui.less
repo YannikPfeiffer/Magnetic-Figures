@@ -7,7 +7,9 @@
   width: 100%;
   max-width: 100%;
   &-options{
+    animation: swipe-in-from-left 0.4s ease-in-out;
     display: none;
+    opacity: 0.7;
     background-color: @colorScheme[background];
     position: fixed;
     height: 100vh;
@@ -17,7 +19,9 @@
     }
   }
   &-keymap{
+    animation: swipe-in-from-right 0.4s ease-in-out;
     display: none;
+    opacity: 0.7;
     background-color: @colorScheme[background];
     position: fixed;
     height: 100vh;
@@ -52,4 +56,27 @@
     }
   }
 }
+
+@keyframes swipe-in-from-left {
+  0%{
+    opacity: 0;
+    transform: translateX(-50%);
+  }
+  100%{
+    opacity: 100%;
+    transform: translateX(0);
+  }
+}
+
+@keyframes swipe-in-from-right {
+  0%{
+    opacity: 0;
+    transform: translateX(50%);
+  }
+  100%{
+    opacity: 100%;
+    transform: translateX(0);
+  }
+}
+
 
