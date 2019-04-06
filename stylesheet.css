@@ -1,14 +1,23 @@
-#canvas{
+canvas{
+    position: absolute;
+    overflow: hidden;
+}
+
+#particleLayer{
     background: black;
     z-index: 0;
-    position: absolute;
 }
 
 #grid{
     pointer-events: none;
     background: transparent;
-    position: absolute;
     z-index: 1;
+}
+
+#figureLayer{
+    pointer-events: none;
+    background: transparent;
+    z-index: 2;
 }
 *{
     background: black;
@@ -20,5 +29,4 @@ html, body{
     overflow: hidden;
     margin: 0;
     padding: 0;
-    background: #FBFFFF;
 }

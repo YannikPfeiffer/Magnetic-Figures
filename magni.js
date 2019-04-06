@@ -2,14 +2,15 @@
  * The HTML Element of the Canvas
  * @type {HTMLCanvasElement}
  */
-const canvasElem = document.getElementById("canvas");
+const particleLayerElem = document.getElementById("particleLayer");
 /**
  * The Rendering Context
  * @type {CanvasRenderingContext2D | WebGLRenderingContext}
  */
-const ctx = canvasElem.getContext('2d');
+const partCtx = particleLayerElem.getContext('2d');
 
 const gridElem = document.getElementById("grid");
+
 const gridCtx = gridElem.getContext('2d');
 
 /**
@@ -48,11 +49,11 @@ let hue = 0;
 const strokeColor = `hsl(100, 100%, 80%, 0.01)`;
 const mainLineWidth = 1;
 let gridIterations = 6;
-ctx.strokeStyle = strokeColor;
+partCtx.strokeStyle = strokeColor;
 
-ctx.lineJoin = 'round';
-ctx.lineCap = 'round';
-ctx.lineWidth = "2px";
+partCtx.lineJoin = 'round';
+partCtx.lineCap = 'round';
+partCtx.lineWidth = "1px";
 
 let G = 1; //Gravitational constant
 let field = {x: 100, y: 100};
@@ -92,26 +93,25 @@ function setup() {
 
 }
 
-function newCannon(x, y, velVector, fireRate, particleCount=10000, velRandomFactor=false){
+function newCannon(x, y, velVector, fireRate, particleCount=10000, deviationDegree=0){
     console.log("newCannon: velvector: "+velVector.x,velVector.y);
-    ctx.strokeStyle = `rgba(255,255,255)`;
-    ctx.beginPath();
-    ctx.ellipse(x, y, 5, 5,0,0,360);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(x,y);
-    ctx.lineTo(x+(velVector.x*5),y+(velVector.y*5));
-    ctx.stroke();
+    partCtx.strokeStyle = `rgba(255,255,255)`;
+    partCtx.beginPath();
+    partCtx.ellipse(x, y, 5, 5,0,0,360);
+    partCtx.stroke();
+    partCtx.beginPath();
+    partCtx.moveTo(x,y);
+    partCtx.lineTo(x+(velVector.x*5),y+(velVector.y*5));
+    partCtx.stroke();
     //let timeout = 1000/fireRate;
     let particlesFired = 0;
     let velVec = velVector;
     this.interval = setInterval(function(){
         if (motionActive && cannonsActive) {
-            if (velRandomFactor) {
-                let randomAmp = Math.random()*1;
-                //console.log(randomAmp);
-                velVec = factorVector(velVector,randomAmp);
-            }
+
+            let randomAmp = Math.random()*deviationDegree+(1-deviationDegree);
+            //console.log(randomAmp);
+            velVec = factorVector(velVector,randomAmp);
 
             newParticle(x, y, velVec);
             particlesFired++;
@@ -121,7 +121,7 @@ function newCannon(x, y, velVector, fireRate, particleCount=10000, velRandomFact
                 clearInterval(this.interval);
             }
         }
-    },1000/fireRate);
+    },fireRate);
     let cannon = {particlesFired:particlesFired,velVec:velVec,interval:interval};
     cannons.push(cannon);
 }
@@ -152,10 +152,10 @@ function newAttractor(x, y) {
     let posVector = {x: x, y: y};
     let weight = 1;
     let attractor = {posVector: posVector, weight: weight};
-    ctx.lineWidth = 5;
-    ctx.strokeStyle = `rgba(255,255,255)`;
+    partCtx.lineWidth = 5;
+    partCtx.strokeStyle = `rgba(255,255,255)`;
     drawPoint(x,y);
-    ctx.lineWidth = mainLineWidth;
+    partCtx.lineWidth = mainLineWidth;
     attractors.push(attractor);
 }
 
@@ -195,10 +195,10 @@ function attractionForce(m1, m2, d, G) {
 }
 
 function drawPoint(x,y){
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x, y);
-    ctx.stroke();
+    partCtx.beginPath();
+    partCtx.moveTo(x, y);
+    partCtx.lineTo(x, y);
+    partCtx.stroke();
 }
 
 function drawParticles() {
@@ -207,7 +207,7 @@ function drawParticles() {
         let particle = particles[i];
         let x = particle.posVector.x;
         let y = particle.posVector.y;
-        ctx.strokeStyle = `hsl(${hue},100%,50%,0.1)`;
+        partCtx.strokeStyle = `hsl(${hue},100%,50%,0.1)`;
 
         drawPoint(x,y);
 
@@ -232,9 +232,9 @@ function reset() {
     cannonsActive = false;
 
     G = 0.5;
-    let h = canvasElem.height;
-    let w = canvasElem.width;
-    ctx.clearRect(0, 0, w, h);
+    let h = particleLayerElem.height;
+    let w = particleLayerElem.width;
+    partCtx.clearRect(0, 0, w, h);
 
     tonsOfParticles = false;
     mirrored = false;
@@ -395,7 +395,7 @@ document.addEventListener('keydown', function (e) {
     if (e.code === "KeyR") { //R for RESET
         reset();
     }
-    
+
     if (e.code === "Space") {
         motionActive = !motionActive;
         console.log("Spacebar");
@@ -446,7 +446,7 @@ document.addEventListener('keydown', function (e) {
     }
 });
 
-canvasElem.addEventListener('mousedown', function (e) {
+particleLayerElem.addEventListener('mousedown', function (e) {
     let x = e.offsetX;
     let y = e.offsetY;
     if (gridVisible){
@@ -458,7 +458,7 @@ canvasElem.addEventListener('mousedown', function (e) {
         if (cannonMode){
             //console.log("New cannon");
             let velVector = randomVelocity(1);
-            newCannon(x,y,velVector,10,10000,true);
+            newCannon(x,y,velVector,0,10000,true);
         }else {
             newParticleGroup(x, y, 1000);
         }
