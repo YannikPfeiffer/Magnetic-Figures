@@ -426,9 +426,12 @@ document.addEventListener('keydown', function (e) {
 
         let quality = 1;
         let image = printCanvasElem.toDataURL("image/png",quality).replace("image/png", "image/octet-stream"); // here is the most important part because if you dont replace you will get a DOM 18 exception.
-
-        window.location.href=image; // it will save locally
-
+        let element = document.createElement('a');
+        element.download = image.slice(100, 110) + ".png";
+        element.href = image;
+        document.body.appendChild(element);
+        element.click();
+        element.remove();
     }
 
     if (e.code === "ControlLeft") { //toggle for grid
