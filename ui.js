@@ -90,10 +90,26 @@ function hideKeymap(){
 //                              Slider-Setup
 //===============================================================================
 
-$("#slider-1").slider();
-$("#slider-1").slider('setValue', G);
-$("#slider-1-value").text($("#slider-1").slider('getValue'));
-$("#slider-1").on("slide", function(slideEvt) {
-    $("#slider-1-value").text(slideEvt.value);
+let slider1 = $("#slider-1");
+let sliderValue1 = $("#slider-1-value");
+
+slider1.slider();
+slider1.slider('setValue', G);
+sliderValue1.text(slider1.slider('getValue'));
+
+slider1.on("slide", function(slideEvt) {
+    sliderValue1.text(slideEvt.value);
     G = slideEvt.value;
+});
+
+let slider2 = $("#slider-2");
+let sliderValue2 = $("#slider-2-value");
+
+slider2.slider();
+slider2.slider('setValue', gridIterations);
+sliderValue2.text(slider2.slider('getValue'));
+
+slider2.on("slide", function(slideEvt) {
+    sliderValue2.text(slideEvt.value);
+    gridIterations = slideEvt.value;
 });

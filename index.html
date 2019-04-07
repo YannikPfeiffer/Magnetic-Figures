@@ -26,13 +26,11 @@
 </head>
 <body oncontextmenu="return false" onload="setup()">
 
+<!-- Canvas -->
 <canvas id="attractors" width="1920" height="1600"></canvas>
 <canvas id="figureLayer" width="1920" height="1600"></canvas>
 <canvas id="grid" width="1920" height="1600"></canvas>
 <canvas id="particleLayer" width="1920" height="1600"></canvas>
-<!-- Canvas -->
-<canvas id="grid" width="1920" height="1600" style="overflow:hidden"></canvas>
-<canvas id="canvas" width="1920" height="1600" style="overflow:hidden"></canvas>
 
 <!-- UI-Overlay -->
 <div class="ui container-fluid">
@@ -54,14 +52,27 @@
                     </div>
                 </div>
                 <hr class="ui-divider"/>
-                <h3 class="ui-headline container">Options:</h3>
+                <h3 class="ui-headline container">Physics:</h3>
                 <div class="container">
                     <div class="row">
                         <div class="col-5">
                             <span id="slider-1-label">Gravitational Force (<span id="slider-1-value"></span>)</span>
                         </div>
                         <div class="col-7 slider-col">
-                            <input id="slider-1" type="text" data-slider-min="-5" data-slider-max="20" data-slider-step="1"/>
+                            <input id="slider-1" type="text" data-slider-min="-10" data-slider-max="10" data-slider-step="0.1"/>
+                        </div>
+                    </div>
+                </div>
+                <hr class="ui-divider"/>
+                <h3 class="ui-headline container">UI:</h3>
+
+                <div class="container">
+                    <div class="row">
+                        <div class="col-5">
+                            <span id="slider-2-label">Grid Iterations (<span id="slider-2-value"></span>)</span>
+                        </div>
+                        <div class="col-7 slider-col">
+                            <input id="slider-2" type="text" data-slider-min="1" data-slider-max="10" data-slider-step="1"/>
                         </div>
                     </div>
                 </div>
@@ -207,6 +218,16 @@
                         </div>
                     </div>
                 </div>
+                <div class="key-binding container">
+                    <div class="row">
+                        <div class="col-4">
+                            <span class="key">S</span>
+                        </div>
+                        <div class="col-8">
+                            Save Image
+                        </div>
+                    </div>
+                </div>
                 <hr class="ui-divider"/>
                 <h3 class="ui-headline container">UI-Controls:</h3>
                 <div class="key-binding container">
@@ -250,7 +271,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
