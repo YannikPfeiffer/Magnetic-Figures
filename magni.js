@@ -205,7 +205,7 @@ function calcAcceleration(element) {
 
         let difVec = subVectors(attractor.posVector, element.posVector);
 
-        if (false) { //calculates degree and its x,y coordinates in which one particle must travel to reach the attractor
+        if (false) { //calculates degree and its x,y coordinates in which one particle must travel to reach the attractor (possible solution to issue with particles
             let degree = Math.atan(difVec.y / difVec.x);
             //degree
 
