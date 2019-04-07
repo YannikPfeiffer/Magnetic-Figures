@@ -205,16 +205,18 @@ function calcAcceleration(element) {
 
         let difVec = subVectors(attractor.posVector, element.posVector);
 
-        /*
-        let degree = Math.atan(difVec.y/difVec.x);
-        //degree
+        if (false) { //calculates degree and its x,y coordinates in which one particle must travel to reach the attractor
+            let degree = Math.atan(difVec.y / difVec.x);
+            //degree
 
-        let x = Math.cos(degree);
-        let y = Math.sin(degree);
-        let vector = {x:x,y:y};
+            let x = Math.cos(degree);
+            let y = Math.sin(degree);
+            let vector = {x: x, y: y};
+            difVec = vector;
+            console.log(difVec);
+        }
 
-        vector = difVec;
-        */
+
 
         accVec = addVectors(accVec, factorVector(difVec, strength)); //difVec before
     }
@@ -240,7 +242,7 @@ function drawParticles() {
         let particle = particles[i];
         let x = particle.posVector.x;
         let y = particle.posVector.y;
-        partCtx.strokeStyle = `hsl(${hue},100%,50%,0.01)`;
+        partCtx.strokeStyle = `hsl(${hue},100%,50%,0.1)`;
 
         drawPoint(x,y);
 
@@ -422,7 +424,8 @@ document.addEventListener('keydown', function (e) {
         console.log("saving image");
         */ //canvas2image alternative, but doesn't fix the image/octet-stream issue
 
-        var image = printCanvasElem.toDataURL("image/png").replace("image/png", "image/octet-stream"); // here is the most important part because if you dont replace you will get a DOM 18 exception.
+        let quality = 1;
+        let image = printCanvasElem.toDataURL("image/png",quality).replace("image/png", "image/octet-stream"); // here is the most important part because if you dont replace you will get a DOM 18 exception.
 
         window.location.href=image; // it will save locally
 
