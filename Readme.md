@@ -7,11 +7,13 @@
 * RMB - Place attractor
 
 * R - Reset the screen/canvas
+* S - Save image
 * Spacebar - Pause/Unpause movement
 * P - Amp Up number of particles placed by x10
 * 1, 2, 3, 4, 5, 6 - Temporary figures that have been premodeled
 
 * LCtrl - Toggle grid
+* H - Hide/Show attractors
 * C - toggles between particles and cannons
 ' F - fire the cannons!
 
