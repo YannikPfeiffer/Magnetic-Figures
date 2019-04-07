@@ -404,6 +404,30 @@ function snapToNearestInterception(x,y){
 //Event Listeners
 document.addEventListener('keydown', function (e) {
 
+    if (e.code === "KeyS"){ //save image
+
+        let x = window.innerWidth;
+        let y = window.innerHeight;
+        console.log(x,y);
+        let printCanvasElem = document.createElement("canvas");
+        printCanvasElem.width = x;
+        printCanvasElem.height = y;
+        let printContext = printCanvasElem.getContext('2d');
+        printContext.strokeStyle = particleLayerElem.style.background;
+        printContext.fillRect(0,0,x,y);
+        printContext.drawImage(particleLayerElem,0,0);
+
+        /*
+        Canvas2Image.saveAsPNG(printContext.canvas,x,y);
+        console.log("saving image");
+        */ //canvas2image alternative, but doesn't fix the image/octet-stream issue
+
+        var image = printCanvasElem.toDataURL("image/png").replace("image/png", "image/octet-stream"); // here is the most important part because if you dont replace you will get a DOM 18 exception.
+
+        window.location.href=image; // it will save locally
+
+    }
+
     if (e.code === "ControlLeft") { //toggle for grid
         gridVisible = !gridVisible;
         toggleGrid(gridVisible);
