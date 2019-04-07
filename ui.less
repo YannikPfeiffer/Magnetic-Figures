@@ -14,9 +14,8 @@
     display: none;
     opacity: 0.7;
     background-color: @colorScheme[background];
-    position: fixed;
     height: 100vh;
-    .ui-icon-close{
+    .icon-close{
       left: 0;
     }
   }
@@ -25,16 +24,15 @@
     display: none;
     opacity: 0.7;
     background-color: @colorScheme[background];
-    position: fixed;
     height: 100vh;
-    .ui-icon-close{
+    .icon-close{
       display: block;
       text-align: right;
     }
   }
 }
 
-.ui-icon-open{
+.icon-open{
     &.left{
       left: 0;
       margin-left: 0.25em;
@@ -54,12 +52,17 @@
     padding: 0.25em;
 }
 
-.ui-icon-close{
+.icon-close{
     position: relative;
     top: 0;
     color: white;
     font-size: 2.5em;
-    padding: 0.25em 0.25em 0.25em 0;
+    &.left{
+      padding: 0.25em 0 0.25em 0.25em;
+    }
+    &.right{
+      padding: 0.25em 0.25em 0.25em 0;
+    }
 }
 
 .key{
@@ -68,19 +71,25 @@
     color: white;
     padding: 5px;
 }
-.ui-keymap-binding{
+.key-binding{
     margin-bottom: 1em;
 }
+
 .ui-header{
   padding: 0;
 }
 .ui-headline{
   margin-top: 0;
+  margin-bottom: 0.5em;
 }
 .ui-divider{
   background-color: white;
   margin-top: 0;
   margin-bottom: 0.5em;
+}
+
+.slider-col{
+  text-align: center;
 }
 
 @keyframes swipe-in-from-left {

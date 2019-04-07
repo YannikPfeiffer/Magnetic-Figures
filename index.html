@@ -9,8 +9,10 @@
 
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.6.1/css/bootstrap-slider.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.6.1/bootstrap-slider.min.js"></script>
 
     <!-- Fontawesome -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.0/css/all.css">
@@ -30,45 +32,35 @@
 
 <!-- UI-Overlay -->
 <div class="ui container-fluid">
-    <i class="ui-icon-open left fas fa-cog" onclick="toggleOptions()"></i>
-    <i class="ui-icon-open right fas fa-keyboard" onclick="toggleKeyMap()"></i>
+    <i class="icon-open left fas fa-cog" onclick="toggleOptions()"></i>
+    <i class="icon-open right fas fa-keyboard" onclick="toggleKeyMap()"></i>
     <div class="row">
         <div class="col-3">
 
             <!-- Options -->
             <div class="ui-options">
                 <!-- Headline -->
-                <div class="container">
+                <div class="ui-header container-fluid">
                     <div class="row">
                         <div class="col-2">
-                            <i class="ui-icon-close fas fa-times" onclick="toggleOptions()"></i>
+                            <i class="icon-close left fas fa-times" onclick="toggleOptions()"></i>
                         </div>
                         <div class="col-10">
-                            Options:
                         </div>
                     </div>
                 </div>
-                <hr/>
-                <div class="ui-keymap-binding container">
+                <hr class="ui-divider"/>
+                <h3 class="ui-headline container">Options:</h3>
+                <div class="container">
                     <div class="row">
-                        <div class="col-6">
-                            LMB
+                        <div class="col-5">
+                            <span id="slider-1-label">Gravitational Force (<span id="slider-1-value"></span>)</span>
                         </div>
-                        <div class="col-6">
-                            Place particles/cannons
+                        <div class="col-7 slider-col">
+                            <input id="slider-1" type="text" data-slider-min="-5" data-slider-max="20" data-slider-step="1"/>
                         </div>
                     </div>
                 </div>
-                <p>RMB - Place attractor</p>
-                <p>R - Reset the screen/canvas</p>
-                <p>Spacebar - Pause/Unpause movement</p>
-                <p>P - Amp Up number of particles placed by x10</p>
-
-                <p>LCtrl - Toggle grid</p>
-                <p>C - toggles between particles and cannons ' F - fire the cannons!</p>
-                <p>M - Toggle 4 way mirror</p>
-                <p>"+" - Raise gravitational constant</p>
-                <p>"-" - Lower gravitational constant</p>
             </div>
 
         </div>
@@ -85,170 +77,170 @@
 
                         </div>
                         <div class="col-2">
-                            <i class="ui-icon-close fas fa-times" onclick="toggleKeyMap()"></i>
+                            <i class="icon-close right fas fa-times" onclick="toggleKeyMap()"></i>
                         </div>
                     </div>
                 </div>
                 <hr class="ui-divider"/>
                 <h3 class="ui-headline container">Controls:</h3>
-                <div class="ui-keymap-binding container">
+                <div class="key-binding container">
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-4">
                             <span class="key">LMB</span>
                         </div>
-                        <div class="col-6">
+                        <div class="col-8">
                             Place particles/cannons
                         </div>
                     </div>
                 </div>
-                <div class="ui-keymap-binding container">
+                <div class="key-binding container">
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-4">
                             <span class="key">RMB</span>
                         </div>
-                        <div class="col-6">
+                        <div class="col-8">
                             Place attractor
                         </div>
                     </div>
                 </div>
-                <div class="ui-keymap-binding container">
+                <div class="key-binding container">
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-4">
                             <span class="key">R</span>
                         </div>
-                        <div class="col-6">
+                        <div class="col-8">
                             Reset the screen/canvas
                         </div>
                     </div>
                 </div>
-                <div class="ui-keymap-binding container">
+                <div class="key-binding container">
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-4">
                             <span class="key">Space</span>
                         </div>
-                        <div class="col-6">
+                        <div class="col-8">
                             Pause/Unpause movement
                         </div>
                     </div>
                 </div>
-                <div class="ui-keymap-binding container">
+                <div class="key-binding container">
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-4">
                             <span class="key">P</span>
                         </div>
-                        <div class="col-6">
+                        <div class="col-8">
                             Amp Up number of particles placed by x10
                         </div>
                     </div>
                 </div>
-                <div class="ui-keymap-binding container">
+                <div class="key-binding container">
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-4">
                             <span class="key">1, 2, 3, 4, 5, 6</span>
                         </div>
-                        <div class="col-6">
+                        <div class="col-8">
                             Temporary figures that have been premodeled
                         </div>
                     </div>
                 </div>
-                <div class="ui-keymap-binding container">
+                <div class="key-binding container">
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-4">
                             <span class="key">L-CTRL</span>
                         </div>
-                        <div class="col-6">
+                        <div class="col-8">
                             Toggle grid
                         </div>
                     </div>
                 </div>
-                <div class="ui-keymap-binding container">
+                <div class="key-binding container">
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-4">
                             <span class="key">C</span>
                         </div>
-                        <div class="col-6">
+                        <div class="col-8">
                             Toggles between particles and cannons
                         </div>
                     </div>
                 </div>
-                <div class="ui-keymap-binding container">
+                <div class="key-binding container">
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-4">
                             <span class="key">F</span>
                         </div>
-                        <div class="col-6">
+                        <div class="col-8">
                             Fire the cannons!
                         </div>
                     </div>
                 </div>
-                <div class="ui-keymap-binding container">
+                <div class="key-binding container">
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-4">
                             <span class="key">M</span>
                         </div>
-                        <div class="col-6">
+                        <div class="col-8">
                             Toggle 4 way mirror
                         </div>
                     </div>
                 </div>
-                <div class="ui-keymap-binding container">
+                <div class="key-binding container">
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-4">
                             <span class="key">+</span>
                         </div>
-                        <div class="col-6">
+                        <div class="col-8">
                             Raise gravitational constant
                         </div>
                     </div>
                 </div>
-                <div class="ui-keymap-binding container">
+                <div class="key-binding container">
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-4">
                             <span class="key">-</span>
                         </div>
-                        <div class="col-6">
+                        <div class="col-8">
                             Lower gravitational constant
                         </div>
                     </div>
                 </div>
                 <hr class="ui-divider"/>
                 <h3 class="ui-headline container">UI-Controls:</h3>
-                <div class="ui-keymap-binding container">
+                <div class="key-binding container">
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-4">
                             <span class="key">L-SHIFT</span>
                         </div>
-                        <div class="col-6">
+                        <div class="col-8">
                             Open/Close UI Panels
                         </div>
                     </div>
                 </div>
-                <div class="ui-keymap-binding container">
+                <div class="key-binding container">
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-4">
                             <span class="key">O</span>
                         </div>
-                        <div class="col-6">
+                        <div class="col-8">
                             Open/Close Options
                         </div>
                     </div>
                 </div>
-                <div class="ui-keymap-binding container">
+                <div class="key-binding container">
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-4">
                             <span class="key">K</span>
                         </div>
-                        <div class="col-6">
+                        <div class="col-8">
                             Open/Close Key Map
                         </div>
                     </div>
                 </div>
-                <div class="ui-keymap-binding container">
+                <div class="key-binding container">
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-4">
                             <span class="key">H</span>
                         </div>
-                        <div class="col-6">
+                        <div class="col-8">
                             Hide/Show UI
                         </div>
                     </div>
