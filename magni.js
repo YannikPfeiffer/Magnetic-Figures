@@ -13,8 +13,8 @@ const gridElem = document.getElementById("grid");
 
 const gridCtx = gridElem.getContext('2d');
 
-const attractorElem = document.getElementById("attractors");
-const attractorCtx = attractorElem.getContext('2d');
+const objectElem = document.getElementById("objects");
+const objectCtx = objectElem.getContext('2d');
 
 /**
  * All registered Particles
@@ -61,9 +61,9 @@ partCtx.lineJoin = 'round';
 partCtx.lineCap = 'round';
 partCtx.lineWidth = "1px";
 
-attractorCtx.lineJoin = 'round';
-attractorCtx.lineCap = 'round';
-attractorCtx.lineWidth = "2px";
+objectCtx.lineJoin = 'round';
+objectCtx.lineCap = 'round';
+objectCtx.lineWidth = "2px";
 
 let G = 1; //Gravitational constant
 let field = {x: 100, y: 100};
@@ -163,34 +163,38 @@ function newAttractor(x, y) {
     let posVector = {x: x, y: y};
     let weight = 1;
     let attractor = {posVector: posVector, weight: weight};
-    attractorCtx.lineWidth = 5;
-    attractorCtx.strokeStyle = `rgba(255, 255, 255)`;
+    objectCtx.lineWidth = 5;
+    objectCtx.strokeStyle = `rgba(255, 255, 255)`;
     drawAttractor(x, y);
     console.log("draw attractor");
-    attractorCtx.lineWidth = defaultLineWidth;
+    objectCtx.lineWidth = defaultLineWidth;
     attractors.push(attractor);
 }
 
-function showAttractors() {
+function showObjects() {
     attractors.forEach(function (attractor) {
-       attractorCtx.lineWidth = 5;
-       attractorCtx.strokeStyle = `rgb(255, 255,255)`;
        drawAttractor(attractor.posVector.x, attractor.posVector.y)
-    })
+    });
+    cannons.forEach(function (cannon) {
+        drawCannon(cannon.x, cannon.y, cannon.velVec);
+    });
 }
 
 function drawAttractor(x, y) {
-    attractorCtx.beginPath();
-    attractorCtx.moveTo(x, y);
-    attractorCtx.lineTo(x, y);
-    attractorCtx.stroke();
+    objectCtx.lineWidth = 5;
+    objectCtx.strokeStyle = `rgb(255, 255,255)`;
+    objectCtx.beginPath();
+    objectCtx.moveTo(x, y);
+    objectCtx.lineTo(x, y);
+    objectCtx.stroke();
+    objectCtx.lineWidth = defaultLineWidth;
 }
 
 function toggleAttractors() {
     if (attractorsVisible) {
-        showAttractors();
+        showObjects();
     } else {
-        attractorCtx.clearRect(0, 0, field.x, field.y);
+        objectCtx.clearRect(0, 0, field.x, field.y);
     }
 }
 
@@ -276,7 +280,7 @@ function reset() {
     let h = particleLayerElem.height;
     let w = particleLayerElem.width;
     partCtx.clearRect(0, 0, w, h);
-    attractorCtx.clearRect(0, 0, w, h);
+    objectCtx.clearRect(0, 0, w, h);
 
     tonsOfParticles = false;
     mirrored = false;
