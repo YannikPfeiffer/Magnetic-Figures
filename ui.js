@@ -86,30 +86,30 @@ function hideKeymap(){
     keymapIsShown = false;
 }
 
+function calculateG(x) {
+    return 1 / 50 * Math.pow(x, 3);
+}
+
 //===============================================================================
 //                              Slider-Setup
 //===============================================================================
 
-let slider1 = $("#slider-1");
-let sliderValue1 = $("#slider-1-value");
+let gravitationRange = $("#gravitationRange");
+let gravitationRangeValue = $("#gravitationRange-value");
 
-slider1.slider();
-slider1.slider('setValue', G);
-sliderValue1.text(slider1.slider('getValue'));
+gravitationRangeValue.text(gravitationRange.val());
 
-slider1.on("slide", function(slideEvt) {
-    sliderValue1.text(slideEvt.value);
-    G = slideEvt.value;
+gravitationRange.on("slide click" , () =>  {
+    gravitationRangeValue.text(calculateG(gravitationRange.val()));
+    G = calculateG(gravitationRange.val());
 });
 
-let slider2 = $("#slider-2");
-let sliderValue2 = $("#slider-2-value");
+let gridRange = $("#gridRange");
+let gridRangeValue = $("#gridRange-value");
 
-slider2.slider();
-slider2.slider('setValue', gridIterations);
-sliderValue2.text(slider2.slider('getValue'));
+gridRangeValue.text(gridRange.val());
 
-slider2.on("slide", function(slideEvt) {
-    sliderValue2.text(slideEvt.value);
-    gridIterations = slideEvt.value;
+gridRange.on("slide, click", () => {
+    gridRangeValue.text(gridRange.val());
+    gridIterations = parseInt(gridRange.val());
 });
