@@ -86,20 +86,21 @@ function hideKeymap(){
     keymapIsShown = false;
 }
 
+function calculateG(x) {
+    return 1 / 50 * Math.pow(x, 3);
+}
+
 //===============================================================================
 //                              Slider-Setup
 //===============================================================================
 
-let slider1 = $("#slider-1");
-let sliderValue1 = $("#slider-1-value");
+let gRange = $("#gravitationRange");
+let gRangeValue = $("#gRange-value");
 
-slider1.slider();
-slider1.slider('setValue', G);
-sliderValue1.text(slider1.slider('getValue'));
 
-slider1.on("slide", function(slideEvt) {
-    sliderValue1.text(slideEvt.value);
-    G = slideEvt.value;
+gRange.on("slide click" , () =>  {
+    gRangeValue.text(calculateG(gRange.val()));
+    G = calculateG(gRange.val());
 });
 
 let slider2 = $("#slider-2");
