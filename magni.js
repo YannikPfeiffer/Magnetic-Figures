@@ -16,6 +16,8 @@ const gridCtx = gridElem.getContext('2d');
 const attractorElem = document.getElementById("attractors");
 const attractorCtx = attractorElem.getContext('2d');
 
+const cannonElem = document.getElementById("cannons");
+const cannonCtx = cannonElem.getContext('2d');
 /**
  * All registered Particles
  * @type {Array}
@@ -45,17 +47,13 @@ let tonsOfParticles = false;
 let cannonMode = false;
 let cannonsActive = false;
 let mirrored = false;
-let gridVisible = false;
 let hue = 0;
 
-let attractorsVisible = true;
-
 //Drawing properties
-const strokeColor = `hsl(100, 100%, 80%, 0.01)`;
 const defaultLineWidth = 1;
-let particleLineWidth = 3;
-let gridIterations = 6;
-partCtx.strokeStyle = strokeColor;
+let particleLineWidth = 5;
+let attractorLineWidth = 5;
+let gridIterations = 4;
 
 partCtx.lineJoin = 'round';
 partCtx.lineCap = 'round';
@@ -63,7 +61,32 @@ partCtx.lineWidth = "1px";
 
 attractorCtx.lineJoin = 'round';
 attractorCtx.lineCap = 'round';
-attractorCtx.lineWidth = "2px";
+attractorCtx.lineWidth = attractorLineWidth;
+
+const contextList = {
+    attractor:{
+        name:"attractor",
+        visible:true,
+        elements:attractors,
+        htmlDOM:document.getElementById("attractors"), //trying to put context and domElem as attribute in elements of contextList
+        ctx:attractorCtx
+    },
+    particle:{
+        name:"particle",
+        visible: true,
+        ctx:partCtx,
+        elements:particles},
+    grid:{
+        name:"grid",
+        visible:false,
+        ctx:gridCtx,
+        iterations: gridIterations},
+    cannon:{
+        name:"cannon",
+        visible:true,
+        ctx:cannonCtx,
+        elements:cannons}
+};
 
 let G = 1; //Gravitational constant
 let field = {x: 100, y: 100};
@@ -92,10 +115,6 @@ function randomVector(maxNumber, secondMaxNumber = maxNumber, onlyPositiv = fals
     return {x: x, y: y}
 }
 
-function updateCanvasSize() { //takes window properties and sets canvas to its size
-
-}
-
 function setup() {
 
     field.x = window.innerWidth;
@@ -104,36 +123,31 @@ function setup() {
 }
 
 function newCannon(x, y, velVector, fireRate, particleCount=10000, deviationDegree=0){
-    console.log("newCannon: velvector: "+velVector.x,velVector.y);
-    partCtx.strokeStyle = `rgba(255,255,255)`;
-    partCtx.beginPath();
-    partCtx.ellipse(x, y, 5, 5,0,0,360);
-    partCtx.stroke();
-    partCtx.beginPath();
-    partCtx.moveTo(x,y);
-    partCtx.lineTo(x+(velVector.x*5),y+(velVector.y*5));
-    partCtx.stroke();
-    //let timeout = 1000/fireRate;
+    console.log("Cannon was created!");
+
     let particlesFired = 0;
+    let posVector = {x:x,y:y};
     let velVec = velVector;
     this.interval = setInterval(function(){
         if (motionActive && cannonsActive) {
 
             let randomAmp = Math.random()*deviationDegree+(1-deviationDegree);
-            //console.log(randomAmp);
+
             velVec = factorVector(velVector,randomAmp);
 
-            newParticle(x, y, velVec);
+            newParticle(x, y, velVector);
             particlesFired++;
-            //console.log(particlesFired);
+
             if (particleCount<particlesFired){
                 console.log("cannon is done firing.");
                 clearInterval(this.interval);
             }
         }
     },fireRate);
-    let cannon = {particlesFired:particlesFired,velVec:velVec,interval:interval};
-    cannons.push(cannon);
+    let cannon = {particlesFired:particlesFired,posVector:posVector,velVector:velVec,interval:this.interval};
+    contextList.cannon.elements.push(cannon);
+    drawElement(cannon, "cannon");
+
 }
 
 function newParticleGroup(x, y, count = 1000) {
@@ -155,7 +169,7 @@ function newParticle(x, y,velocityVector) {
     let size = particleLineWidth;
     let particle = {posVector: posVector, velVector: velVector, accVector: accVector, weight: weight, size:size};
     drawPoint(x,y,size);
-    particles.push(particle);
+    contextList.particle.elements.push(particle);
     //console.log("new Particle",velVector);
 }
 
@@ -163,40 +177,71 @@ function newAttractor(x, y) {
     let posVector = {x: x, y: y};
     let weight = 1;
     let attractor = {posVector: posVector, weight: weight};
-    attractorCtx.lineWidth = 5;
+    attractorCtx.lineWidth = attractorLineWidth;
     attractorCtx.strokeStyle = `rgba(255, 255, 255)`;
-    drawAttractor(x, y);
+    drawElement(attractor, "attractor");
     console.log("draw attractor");
-    attractorCtx.lineWidth = defaultLineWidth;
-    attractors.push(attractor);
+    contextList.attractor.elements.push(attractor);
 }
 
-function showAttractors() {
-    attractors.forEach(function (attractor) {
-       attractorCtx.lineWidth = 5;
-       attractorCtx.strokeStyle = `rgb(255, 255,255)`;
-       drawAttractor(attractor.posVector.x, attractor.posVector.y)
+function showElements(contextElement) {
+    contextElement.elements.forEach(function (element) {
+       contextElement.ctx.lineWidth = attractorLineWidth;
+       contextElement.ctx.strokeStyle = `rgb(255, 255,255)`;
+       drawElement(element,contextElement.name);
     })
 }
 
-function drawAttractor(x, y) {
-    attractorCtx.beginPath();
-    attractorCtx.moveTo(x, y);
-    attractorCtx.lineTo(x, y);
-    attractorCtx.stroke();
+function drawElement(element,elementname) {
+
+    console.log(element);
+    console.log(elementname);
+    let x = element.posVector.x;
+    let y = element.posVector.y;
+    if (elementname === "attractor"){
+        attractorCtx.beginPath();
+        attractorCtx.moveTo(x, y);
+        attractorCtx.lineTo(x, y);
+        attractorCtx.stroke();
+        return;
+    }
+    if (elementname === "cannon"){
+        console.log(element);
+        console.log(element.velVector);
+        let velX = element.velVector.x;
+        let velY = element.velVector.y;
+
+        cannonCtx.lineWidth = 1;
+        cannonCtx.strokeStyle = `rgba(255,255,255)`;
+        cannonCtx.beginPath();
+        cannonCtx.ellipse(x, y, 5, 5,0,0,360);
+        cannonCtx.stroke();
+        cannonCtx.beginPath();
+        cannonCtx.moveTo(x,y);
+        cannonCtx.lineTo(x+(velX*5),y+(velY*5));
+        cannonCtx.stroke();
+    }
 }
 
-function toggleAttractors() {
-    if (attractorsVisible) {
-        showAttractors();
+function toggleFieldVisibility(contextElement) {
+    console.log(contextElement);
+    contextElement.visible = !contextElement.visible;
+
+    if (contextElement.visible) {
+        if (contextElement.name === "grid") {
+            drawGrid(gridIterations);
+        } else {
+            showElements(contextElement);
+        }
     } else {
-        attractorCtx.clearRect(0, 0, field.x, field.y);
+        contextElement.ctx.clearRect(0, 0, field.x, field.y);
     }
 }
 
 function calcAcceleration(element) {
 
     let accVec = {x: 0, y: 0};
+    let attractors = contextList.attractor.elements;
     for (let i = 0; i < attractors.length; i++) {
 
         let attractor = attractors[i];
@@ -217,9 +262,6 @@ function calcAcceleration(element) {
             difVec = vector;
             console.log(difVec);
         }
-
-
-
         accVec = addVectors(accVec, factorVector(difVec, strength)); //difVec before
     }
 
@@ -234,6 +276,7 @@ function attractionForce(m1, m2, d, G) {
 
 
 function drawPoint(x,y,size){
+
     partCtx.lineWidth = size || particleLineWidth;
     partCtx.beginPath();
     partCtx.moveTo(x, y);
@@ -242,6 +285,7 @@ function drawPoint(x,y,size){
 }
 
 function drawParticles() {
+    let particles = contextList.particle.elements;
     for (let i = 0; i < particles.length; i++) {
 
         let particle = particles[i];
@@ -262,12 +306,13 @@ function drawParticles() {
 }
 
 function reset() {
-    particles = [];
-    attractors = [];
-    for (let i = 0; i<cannons.length; i++){
-        clearInterval(cannons[i].interval);
+    contextList.attractor.elements = [];
+    contextList.particle.elements = [];
+
+    for (let i = 0; i<contextList.cannon.elements.length; i++){
+        clearInterval(contextList.cannon.elements[i].interval);
     }
-    cannons = [];
+    contextList.cannon.elements = [];
 
     cannonMode = false;
     cannonsActive = false;
@@ -275,8 +320,9 @@ function reset() {
     G = 0.5;
     let h = particleLayerElem.height;
     let w = particleLayerElem.width;
-    partCtx.clearRect(0, 0, w, h);
-    attractorCtx.clearRect(0, 0, w, h);
+
+    contextList.particle.ctx.clearRect(0, 0, w, h);
+    contextList.attractor.ctx.clearRect(0, 0, w, h);
 
     tonsOfParticles = false;
     mirrored = false;
@@ -339,47 +385,8 @@ function drawGrid(iterations){
     drawLineY(middleY-init,middleY+init,hue,i);
 }
 
-function drawGridRelativeToScreen(iterations){  //not recommended
-
-    let hue = 0;
-    let additiveHue = 360/iterations;
-
-    gridCtx.lineWidth = "5px";
-    let i = 0;
-    function drawLineX(x1,x2,hue,i){
-        gridCtx.strokeStyle = `hsl(${hue},100%,80%,0.5`;
-        if (i===iterations)return;
-        let x = (x1+x2)/2;
-        gridCtx.beginPath();
-        gridCtx.moveTo(x,field.y);
-        gridCtx.lineTo(x,0);
-        gridCtx.stroke();
-        i++;
-        hue += additiveHue;
-        drawLineX(x1,x,hue,i);
-        drawLineX(x,x2,hue,i);
-    }
-    function drawLineY(y1,y2,hue,i){
-        gridCtx.strokeStyle = `hsl(${hue},100%,80%,0.5`;
-        if (i===iterations)return;
-        let y = (y1+y2)/2;
-        gridCtx.beginPath();
-        gridCtx.moveTo(field.x,y);
-        gridCtx.lineTo(0,y);
-        gridCtx.stroke();
-        i++;
-        hue += additiveHue;
-        drawLineY(y1,y,hue,i);
-        drawLineY(y,y2,hue,i);
-
-    }
-    drawLineX(0,field.x,hue,i);
-    drawLineY(0,field.y,hue,i);
-}
-
 function snapToNearestInterception(x,y){
 
-    let init = Math.max(field.x,field.y)/2;
     let interval = Math.max(field.x,field.y);
 
     for (let i = 0; i<gridIterations;i++){
@@ -407,7 +414,6 @@ function snapToNearestInterception(x,y){
     }
     return {x:x,y:y}
 }
-//window.addEventListener('resize',updateCanvasSize,false);
 
 //Event Listeners
 document.addEventListener('keydown', function (e) {
@@ -441,8 +447,7 @@ document.addEventListener('keydown', function (e) {
     }
 
     if (e.code === "ControlLeft") { //toggle for grid
-        gridVisible = !gridVisible;
-        toggleGrid(gridVisible);
+        toggleFieldVisibility(contextList.grid);
     }
 
     if (e.code === "BracketRight") {
@@ -516,15 +521,16 @@ document.addEventListener('keydown', function (e) {
     }
 
     if (e.code === "KeyH") {
-        attractorsVisible = !attractorsVisible;
-        toggleAttractors();
+        toggleFieldVisibility(contextList.attractor);
+        toggleFieldVisibility(contextList.cannon);
+        console.log(contextList.attractor.htmlDOM);
     }
 });
 
 particleLayerElem.addEventListener('mousedown', function (e) {
     let x = e.offsetX;
     let y = e.offsetY;
-    if (gridVisible){
+    if (contextList.grid.visible){
         let vector = snapToNearestInterception(x,y);
         x = vector.x;
         y = vector.y;
@@ -546,6 +552,7 @@ particleLayerElem.addEventListener('mousedown', function (e) {
 
 setInterval(function () {
     if (motionActive) {
+        let particles = contextList.particle.elements;
         for (let i = 0; i < particles.length; i++) {
             let particle = particles[i];
             calcAcceleration(particle);

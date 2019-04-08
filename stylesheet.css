@@ -1,33 +1,32 @@
-canvas{
+.layer{
+    pointer-events: none;
+    background: transparent;
     position: absolute;
     overflow: hidden;
 }
-
 #particleLayer{
+    pointer-events: auto;
     background: black;
     z-index: 0;
 }
 
 #grid{
-    pointer-events: none;
-    background: transparent;
-    position: absolute;
-    z-index: 2;
+    z-index: 1;
 }
 
 #attractors {
-    pointer-events: none;
-    background: transparent;
-    position: absolute;
+    z-index: 2;
+}
+
+#cannons{
     z-index: 2;
 }
 
 #figureLayer{
-    pointer-events: none;
-    background: transparent;
-    z-index: 2;
+    z-index: 3;
 }
-*{
+
+{
     background: black;
 }
 
