@@ -105,14 +105,7 @@ function setup() {
 
 function newCannon(x, y, velVector, fireRate, particleCount=10000, deviationDegree=0){
     console.log("newCannon: velvector: "+velVector.x,velVector.y);
-    partCtx.strokeStyle = `rgba(255,255,255)`;
-    partCtx.beginPath();
-    partCtx.ellipse(x, y, 5, 5,0,0,360);
-    partCtx.stroke();
-    partCtx.beginPath();
-    partCtx.moveTo(x,y);
-    partCtx.lineTo(x+(velVector.x*5),y+(velVector.y*5));
-    partCtx.stroke();
+    drawCannon(x, y, velVector);
     //let timeout = 1000/fireRate;
     let particlesFired = 0;
     let velVec = velVector;
@@ -132,8 +125,20 @@ function newCannon(x, y, velVector, fireRate, particleCount=10000, deviationDegr
             }
         }
     },fireRate);
-    let cannon = {particlesFired:particlesFired,velVec:velVec,interval:interval};
+    let cannon = {particlesFired:particlesFired,velVec:velVec,interval:interval, x:x, y:y};
     cannons.push(cannon);
+}
+
+function drawCannon(x, y, velVector) {
+objectCtx.strokeStyle = `rgba(255,255,255)`;
+    objectCtx.beginPath();
+    objectCtx.ellipse(x, y, 5, 5,0,0,360);
+    objectCtx.stroke();
+    objectCtx.beginPath();
+    objectCtx.moveTo(x,y);
+    objectCtx.lineTo(x+(velVector.x*5),y+(velVector.y*5));
+    objectCtx.stroke();
+    objectCtx.lineWidth = defaultLineWidth;
 }
 
 function newParticleGroup(x, y, count = 1000) {
