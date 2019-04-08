@@ -94,13 +94,13 @@ function calculateG(x) {
 //                              Slider-Setup
 //===============================================================================
 
-let gRange = $("#gravitationRange");
-let gRangeValue = $("#gRange-value");
+let gravitationRange = $("#gravitationRange");
+let gravitationRangeValue = $("#gravitationRange-value");
 
 
-gRange.on("slide click" , () =>  {
-    gRangeValue.text(calculateG(gRange.val()));
-    G = calculateG(gRange.val());
+gravitationRange.on("slide click" , () =>  {
+    gravitationRangeValue.text(calculateG(gravitationRange.val()));
+    G = calculateG(gravitationRange.val());
 });
 
 let slider2 = $("#slider-2");
