@@ -3,58 +3,36 @@
  * @type {HTMLCanvasElement}
  */
 const particleLayerElem = document.getElementById("particleLayer");
-/**
- * The Rendering Context
- * @type {CanvasRenderingContext2D | WebGLRenderingContext}
- */
 const partCtx = particleLayerElem.getContext('2d');
 
 const gridElem = document.getElementById("grid");
-
 const gridCtx = gridElem.getContext('2d');
 
 const objectElem = document.getElementById("objects");
 const objectCtx = objectElem.getContext('2d');
 
-/**
- * All registered Particles
- * @type {Array}
- */
+
 let particles = [];
-/**
- * All registered Attractors
- * @type {Array}
- */
+let particleSettings = {lineWidth:3,deployCount:1000};
+
 let attractors = [];
-/**
- * Is the motion activated?
- * @type {boolean}
- */
-let motionActive = false;
+let attractorSettings = {visible:true};
 
 let cannons = [];
-/**
- * Should there be 10x more particles?
- * @type {boolean}
- */
-let tonsOfParticles = false;
-/**
- * The color of the particles
- * @type {boolean}
- */
-let cannonMode = false;
-let cannonsActive = false;
-let mirrored = false;
-let gridVisible = false;
+let cannonSettings = {visible:true,active:false,particlesPerSecond:2,bullets:100};
+
+let gridSettings = {visible: false, iterations: 5};
+
+let globalSettings = {motionActive:false, cannonMode:false, mirrored: false,};
+
+//Variables that are used more frequently are not put in the globalSettings variable due to performance optimization
+let G = 1; //Gravitational constant
+let field = {x: 100, y: 100};
 let hue = 0;
 
-let attractorsVisible = true;
-
 //Drawing properties
-const strokeColor = `hsl(100, 100%, 80%, 0.01)`;
+const strokeColor = `hsl(100, 100%, 50%, 0.01)`;
 const defaultLineWidth = 1;
-let particleLineWidth = 3;
-let gridIterations = 6;
 partCtx.strokeStyle = strokeColor;
 
 partCtx.lineJoin = 'round';
@@ -64,9 +42,6 @@ partCtx.lineWidth = "1px";
 objectCtx.lineJoin = 'round';
 objectCtx.lineCap = 'round';
 objectCtx.lineWidth = "2px";
-
-let G = 1; //Gravitational constant
-let field = {x: 100, y: 100};
 
 function randomVelocity(max, randomAmplifier = false) {
     let degree = Math.random() * 360;
@@ -92,10 +67,6 @@ function randomVector(maxNumber, secondMaxNumber = maxNumber, onlyPositiv = fals
     return {x: x, y: y}
 }
 
-function updateCanvasSize() { //takes window properties and sets canvas to its size
-
-}
-
 function setup() {
 
     field.x = window.innerWidth;
@@ -103,14 +74,15 @@ function setup() {
 
 }
 
-function newCannon(x, y, velVector, fireRate, particleCount=10000, deviationDegree=0){
+function newCannon(x, y, velVector, deviationDegree=0){
     console.log("newCannon: velvector: "+velVector.x,velVector.y);
     drawCannon(x, y, velVector);
-    //let timeout = 1000/fireRate;
+    let fps = cannonSettings.particlesPerSecond; //Fire per second
+    let bullets = cannonSettings.bullets;
     let particlesFired = 0;
     let velVec = velVector;
     this.interval = setInterval(function(){
-        if (motionActive && cannonsActive) {
+        if (globalSettings.motionActive && cannonSettings.active) {
 
             let randomAmp = Math.random()*deviationDegree+(1-deviationDegree);
             //console.log(randomAmp);
@@ -119,18 +91,18 @@ function newCannon(x, y, velVector, fireRate, particleCount=10000, deviationDegr
             newParticle(x, y, velVec);
             particlesFired++;
             //console.log(particlesFired);
-            if (particleCount<particlesFired){
+            if (bullets<particlesFired){
                 console.log("cannon is done firing.");
                 clearInterval(this.interval);
             }
         }
-    },fireRate);
-    let cannon = {particlesFired:particlesFired,velVec:velVec,interval:interval, x:x, y:y};
+    },1000 / fps);
+    let cannon = {particlesFired:particlesFired,velVec:velVec,interval:this.interval, x:x, y:y};
     cannons.push(cannon);
 }
 
 function drawCannon(x, y, velVector) {
-objectCtx.strokeStyle = `rgba(255,255,255)`;
+    objectCtx.strokeStyle = `rgba(255,255,255)`;
     objectCtx.beginPath();
     objectCtx.ellipse(x, y, 5, 5,0,0,360);
     objectCtx.stroke();
@@ -141,12 +113,9 @@ objectCtx.strokeStyle = `rgba(255,255,255)`;
     objectCtx.lineWidth = defaultLineWidth;
 }
 
-function newParticleGroup(x, y, count = 1000) {
-    if (tonsOfParticles) {
-        count = count * 10;
-        console.log("ye", count);
-    }
-    for (let i = 0; i < count; i++) {
+function newParticleGroup(x, y) {
+
+    for (let i = 0; i < particleSettings.deployCount; i++) {
         let velocity = randomVelocity(1);
         newParticle(x, y,velocity);
     }
@@ -157,7 +126,7 @@ function newParticle(x, y,velocityVector) {
     let velVector = velocityVector;
     let accVector = {x: 0, y: 0};
     let weight = 1;
-    let size = particleLineWidth;
+    let size = particleSettings.lineWidth;
     let particle = {posVector: posVector, velVector: velVector, accVector: accVector, weight: weight, size:size};
     drawPoint(x,y,size);
     particles.push(particle);
@@ -196,7 +165,7 @@ function drawAttractor(x, y) {
 }
 
 function toggleAttractors() {
-    if (attractorsVisible) {
+    if (attractorSettings.visible) {
         showObjects();
     } else {
         objectCtx.clearRect(0, 0, field.x, field.y);
@@ -243,7 +212,7 @@ function attractionForce(m1, m2, d, G) {
 
 
 function drawPoint(x,y,size){
-    partCtx.lineWidth = size || particleLineWidth;
+    partCtx.lineWidth = size || particleSettings.lineWidth;
     partCtx.beginPath();
     partCtx.moveTo(x, y);
     partCtx.lineTo(x, y);
@@ -261,7 +230,7 @@ function drawParticles() {
 
         drawPoint(x,y,size);
 
-        if (mirrored) {
+        if (globalSettings.mirrored) {
             drawPoint(field.x - x, y,size);
             drawPoint(x, field.y - y,size);
             drawPoint(field.x - x, field.y - y,size);
@@ -278,8 +247,8 @@ function reset() {
     }
     cannons = [];
 
-    cannonMode = false;
-    cannonsActive = false;
+    globalSettings.cannonMode = false;
+    cannonSettings.active = false;
 
     G = 0.5;
     let h = particleLayerElem.height;
@@ -287,21 +256,21 @@ function reset() {
     partCtx.clearRect(0, 0, w, h);
     objectCtx.clearRect(0, 0, w, h);
 
-    tonsOfParticles = false;
-    mirrored = false;
-    motionActive = false;
+    globalSettings.mirrored = false;
+    globalSettings.motionActive = false;
 }
 
 function toggleGrid(visible){
     if (visible){
-        drawGrid(gridIterations);
+        drawGrid(gridSettings.iterations);
     } else {
         gridCtx.clearRect(0,0,field.x,field.y);
     }
 }
 
-function drawGrid(iterations){
+function drawGrid(){
 
+    let iterations = gridSettings.iterations;
     let hue = 0;
     let additiveHue = 360/iterations;
 
@@ -323,12 +292,10 @@ function drawGrid(iterations){
         drawLineX(x,x2,hue,i);
     }
     function drawLineY(y1,y2,hue,i){
-        let lineWidth = (iterations-i)/2;
-        gridCtx.lineWidth = lineWidth;
+        gridCtx.lineWidth = (iterations-i)/2;
         gridCtx.strokeStyle = `hsl(${hue},100%,80%,0.5`;
         if (i===iterations)return;
         let y = (y1+y2)/2;
-        let dif = y2-y1;
 
         gridCtx.beginPath();
         gridCtx.moveTo(field.x,y);
@@ -348,50 +315,12 @@ function drawGrid(iterations){
     drawLineY(middleY-init,middleY+init,hue,i);
 }
 
-function drawGridRelativeToScreen(iterations){  //not recommended
-
-    let hue = 0;
-    let additiveHue = 360/iterations;
-
-    gridCtx.lineWidth = "5px";
-    let i = 0;
-    function drawLineX(x1,x2,hue,i){
-        gridCtx.strokeStyle = `hsl(${hue},100%,80%,0.5`;
-        if (i===iterations)return;
-        let x = (x1+x2)/2;
-        gridCtx.beginPath();
-        gridCtx.moveTo(x,field.y);
-        gridCtx.lineTo(x,0);
-        gridCtx.stroke();
-        i++;
-        hue += additiveHue;
-        drawLineX(x1,x,hue,i);
-        drawLineX(x,x2,hue,i);
-    }
-    function drawLineY(y1,y2,hue,i){
-        gridCtx.strokeStyle = `hsl(${hue},100%,80%,0.5`;
-        if (i===iterations)return;
-        let y = (y1+y2)/2;
-        gridCtx.beginPath();
-        gridCtx.moveTo(field.x,y);
-        gridCtx.lineTo(0,y);
-        gridCtx.stroke();
-        i++;
-        hue += additiveHue;
-        drawLineY(y1,y,hue,i);
-        drawLineY(y,y2,hue,i);
-
-    }
-    drawLineX(0,field.x,hue,i);
-    drawLineY(0,field.y,hue,i);
-}
-
 function snapToNearestInterception(x,y){
 
     let init = Math.max(field.x,field.y)/2;
     let interval = Math.max(field.x,field.y);
 
-    for (let i = 0; i<gridIterations;i++){
+    for (let i = 0; i<gridSettings.iterations;i++){
         interval = interval/2;
     }
 
@@ -450,8 +379,8 @@ document.addEventListener('keydown', function (e) {
     }
 
     if (e.code === "ControlLeft") { //toggle for grid
-        gridVisible = !gridVisible;
-        toggleGrid(gridVisible);
+        gridSettings.visible = !gridSettings.visible;
+        toggleGrid(gridSettings.visible);
     }
 
     if (e.code === "BracketRight") {
@@ -463,20 +392,15 @@ document.addEventListener('keydown', function (e) {
     }
 
     if (e.code === "KeyM") { //enables mirror divided by 4
-        mirrored = !mirrored;
+        globalSettings.mirrored = !globalSettings.mirrored;
     } //activates mirrors
-
-    if (e.code === "KeyP") {
-        tonsOfParticles = !tonsOfParticles;
-        console.log(tonsOfParticles);
-    } //amplifies or decreases particle count by 10x
 
     if (e.code === "KeyR") { //R for RESET
         reset();
     }
 
     if (e.code === "Space") {
-        motionActive = !motionActive;
+        globalSettings.motionActive = !globalSettings.motionActive;
         console.log("Spacebar");
     }
 
@@ -517,15 +441,15 @@ document.addEventListener('keydown', function (e) {
     }
 
     if (e.code === "KeyC") { //toggle cannon mode
-        cannonMode = !cannonMode;
+        globalSettings.cannonMode = !globalSettings.cannonMode;
     }
 
     if (e.code === "KeyF") {
-        cannonsActive = ! cannonsActive;
+        cannonSettings.active = !cannonSettings.active;
     }
 
     if (e.code === "KeyH") {
-        attractorsVisible = !attractorsVisible;
+        attractorSettings.visible = !attractorSettings.visible;
         toggleAttractors();
     }
 });
@@ -533,18 +457,18 @@ document.addEventListener('keydown', function (e) {
 particleLayerElem.addEventListener('mousedown', function (e) {
     let x = e.offsetX;
     let y = e.offsetY;
-    if (gridVisible){
+    if (gridSettings.visible){
         let vector = snapToNearestInterception(x,y);
         x = vector.x;
         y = vector.y;
     }
     if (e.button === 0) {
-        if (cannonMode){
+        if (globalSettings.cannonMode){
             //console.log("New cannon");
             let velVector = randomVelocity(1);
             newCannon(x,y,velVector,0,10000,0.1);
         }else {
-            newParticleGroup(x, y, 1000);
+            newParticleGroup(x, y);
         }
     }
     if (e.button === 2) {
@@ -554,7 +478,7 @@ particleLayerElem.addEventListener('mousedown', function (e) {
 });
 
 setInterval(function () {
-    if (motionActive) {
+    if (globalSettings.motionActive) {
         for (let i = 0; i < particles.length; i++) {
             let particle = particles[i];
             calcAcceleration(particle);
