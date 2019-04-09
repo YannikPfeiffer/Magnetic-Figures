@@ -52,7 +52,8 @@ let attractorsVisible = true;
 
 //Drawing properties
 const strokeColor = `hsl(100, 100%, 80%, 0.01)`;
-const mainLineWidth = 1;
+const defaultLineWidth = 1;
+let particleLineWidth = 3;
 let gridIterations = 6;
 partCtx.strokeStyle = strokeColor;
 
@@ -151,8 +152,9 @@ function newParticle(x, y,velocityVector) {
     let velVector = velocityVector;
     let accVector = {x: 0, y: 0};
     let weight = 1;
-    let particle = {posVector: posVector, velVector: velVector, accVector: accVector, weight: weight};
-    drawPoint(x,y);
+    let size = particleLineWidth;
+    let particle = {posVector: posVector, velVector: velVector, accVector: accVector, weight: weight, size:size};
+    drawPoint(x,y,size);
     particles.push(particle);
     //console.log("new Particle",velVector);
 }
@@ -165,7 +167,7 @@ function newAttractor(x, y) {
     attractorCtx.strokeStyle = `rgba(255, 255, 255)`;
     drawAttractor(x, y);
     console.log("draw attractor");
-    attractorCtx.lineWidth = mainLineWidth;
+    attractorCtx.lineWidth = defaultLineWidth;
     attractors.push(attractor);
 }
 
@@ -205,7 +207,7 @@ function calcAcceleration(element) {
 
         let difVec = subVectors(attractor.posVector, element.posVector);
 
-        if (false) { //calculates degree and its x,y coordinates in which one particle must travel to reach the attractor
+        if (false) { //calculates degree and its x,y coordinates in which one particle must travel to reach the attractor (possible solution to issue with particles
             let degree = Math.atan(difVec.y / difVec.x);
             //degree
 
@@ -229,7 +231,10 @@ function attractionForce(m1, m2, d, G) {
     return (G * (m1 + m2)) / (d * d);
 }
 
-function drawPoint(x,y){
+
+
+function drawPoint(x,y,size){
+    partCtx.lineWidth = size || particleLineWidth;
     partCtx.beginPath();
     partCtx.moveTo(x, y);
     partCtx.lineTo(x, y);
@@ -242,14 +247,15 @@ function drawParticles() {
         let particle = particles[i];
         let x = particle.posVector.x;
         let y = particle.posVector.y;
+        let size = particle.size;
         partCtx.strokeStyle = `hsl(${hue},100%,50%,0.1)`;
 
-        drawPoint(x,y);
+        drawPoint(x,y,size);
 
         if (mirrored) {
-            drawPoint(field.x - x, y);
-            drawPoint(x, field.y - y);
-            drawPoint(field.x - x, field.y - y);
+            drawPoint(field.x - x, y,size);
+            drawPoint(x, field.y - y,size);
+            drawPoint(field.x - x, field.y - y,size);
         }
 
     }
@@ -426,9 +432,12 @@ document.addEventListener('keydown', function (e) {
 
         let quality = 1;
         let image = printCanvasElem.toDataURL("image/png",quality).replace("image/png", "image/octet-stream"); // here is the most important part because if you dont replace you will get a DOM 18 exception.
-
-        window.location.href=image; // it will save locally
-
+        let element = document.createElement('a');
+        element.download = image.slice(100, 110) + ".png";
+        element.href = image;
+        document.body.appendChild(element);
+        element.click();
+        element.remove();
     }
 
     if (e.code === "ControlLeft") { //toggle for grid
