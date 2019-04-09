@@ -40,57 +40,63 @@ function disableUI() {
     uiIsDisabled = true;
 }
 
-function showUI(){
+function showUI() {
     showOptions();
     showKeymap();
 }
 
-function hideUI(){
+function hideUI() {
     hideOptions();
     hideKeymap();
 }
 
-function toggleOptions(){
+function toggleOptions() {
     $('.ui-options').toggle();
     $('.icon-open.left').toggle();
     optionsIsShown = !optionsIsShown;
 }
 
-function toggleKeyMap(){
+function toggleKeyMap() {
     $('.ui-keymap').toggle();
     $('.icon-open.right').toggle();
     keymapIsShown = !keymapIsShown;
 }
 
-function showOptions(){
+function showOptions() {
     $('.ui-options').show();
     $('.icon-open.left').hide();
     optionsIsShown = true;
 }
 
-function showKeymap(){
+function showKeymap() {
     $('.ui-keymap').show();
     $('.icon-open.right').hide();
     keymapIsShown = true;
 }
 
-function hideOptions(){
+function hideOptions() {
     $('.ui-options').hide();
     $('.icon-open.left').show();
     optionsIsShown = false;
 }
 
-function hideKeymap(){
+function hideKeymap() {
     $('.ui-keymap').hide();
     $('.icon-open.right').show();
     keymapIsShown = false;
 }
 
-function calculateG(x) {
-    return 1 / 50 * Math.pow(x, 3);
+function calculateG(x, reverse = false) {
+    const vorzeichen = x < 0 ? -1 : 1;
+    if (!reverse) {
+        return vorzeichen * (1 / 25 * Math.pow(x, 2));
+    } else {
+        return Math.sqrt(x * vorzeichen * 25);
+    }
 }
 
 function updateGravitationRange() {
+    gravitationRange.val(calculateG(G, true));
     gravitationRangeValue.text(G);
 }
 
@@ -101,9 +107,9 @@ function updateGravitationRange() {
 let gravitationRange = $("#gravitationRange");
 let gravitationRangeValue = $("#gravitationRange-value");
 
-gravitationRangeValue.text(gravitationRange.val());
+updateGravitationRange();
 
-gravitationRange.on("slide click" , () =>  {
+gravitationRange.on("slide click", () => {
     G = calculateG(gravitationRange.val());
     updateGravitationRange();
 });
