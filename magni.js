@@ -51,9 +51,9 @@ let hue = 0;
 
 //Drawing properties
 const defaultLineWidth = 1;
-let particleLineWidth = 5;
+let particleLineWidth = 2;
 let attractorLineWidth = 5;
-let gridIterations = 4;
+let gridIterations = 6;
 
 partCtx.lineJoin = 'round';
 partCtx.lineCap = 'round';
@@ -68,22 +68,25 @@ const contextList = {
         name:"attractor",
         visible:true,
         elements:attractors,
-        htmlDOM:document.getElementById("attractors"), //trying to put context and domElem as attribute in elements of contextList
+        htmlDOM:attractorElem, //trying to put context and domElem as attribute in elements of contextList
         ctx:attractorCtx
     },
     particle:{
         name:"particle",
         visible: true,
-        ctx:partCtx,
-        elements:particles},
+        elements:particles,
+        htmlDOM:particleLayerElem,
+        ctx:partCtx},
     grid:{
         name:"grid",
         visible:false,
+        htmlDOM:gridElem,
         ctx:gridCtx,
         iterations: gridIterations},
     cannon:{
         name:"cannon",
         visible:true,
+        htmlDOM:cannonElem,
         ctx:cannonCtx,
         elements:cannons}
 };
@@ -168,7 +171,7 @@ function newParticle(x, y,velocityVector) {
     let weight = 1;
     let size = particleLineWidth;
     let particle = {posVector: posVector, velVector: velVector, accVector: accVector, weight: weight, size:size};
-    drawPoint(x,y,size);
+    drawElement(particle,"particle");
     contextList.particle.elements.push(particle);
     //console.log("new Particle",velVector);
 }
@@ -177,8 +180,8 @@ function newAttractor(x, y) {
     let posVector = {x: x, y: y};
     let weight = 1;
     let attractor = {posVector: posVector, weight: weight};
-    attractorCtx.lineWidth = attractorLineWidth;
-    attractorCtx.strokeStyle = `rgba(255, 255, 255)`;
+    contextList.attractor.ctx.lineWidth = attractorLineWidth;
+    contextList.attractor.ctx.strokeStyle = `rgba(255, 255, 255)`;
     drawElement(attractor, "attractor");
     console.log("draw attractor");
     contextList.attractor.elements.push(attractor);
@@ -198,11 +201,12 @@ function drawElement(element,elementname) {
     console.log(elementname);
     let x = element.posVector.x;
     let y = element.posVector.y;
+
     if (elementname === "attractor"){
-        attractorCtx.beginPath();
-        attractorCtx.moveTo(x, y);
-        attractorCtx.lineTo(x, y);
-        attractorCtx.stroke();
+        contextList.attractor.ctx.beginPath();
+        contextList.attractor.ctx.moveTo(x, y);
+        contextList.attractor.ctx.lineTo(x, y);
+        contextList.attractor.ctx.stroke();
         return;
     }
     if (elementname === "cannon"){
@@ -211,15 +215,25 @@ function drawElement(element,elementname) {
         let velX = element.velVector.x;
         let velY = element.velVector.y;
 
-        cannonCtx.lineWidth = 1;
-        cannonCtx.strokeStyle = `rgba(255,255,255)`;
-        cannonCtx.beginPath();
-        cannonCtx.ellipse(x, y, 5, 5,0,0,360);
-        cannonCtx.stroke();
-        cannonCtx.beginPath();
-        cannonCtx.moveTo(x,y);
-        cannonCtx.lineTo(x+(velX*5),y+(velY*5));
-        cannonCtx.stroke();
+        contextList.cannon.ctx.lineWidth = 1;
+        contextList.cannon.ctx.strokeStyle = `rgba(255,255,255)`;
+        contextList.cannon.ctx.beginPath();
+        contextList.cannon.ctx.ellipse(x, y, 5, 5,0,0,360);
+        contextList.cannon.ctx.stroke();
+        contextList.cannon.ctx.beginPath();
+        contextList.cannon.ctx.moveTo(x,y);
+        contextList.cannon.ctx.lineTo(x+(velX*5),y+(velY*5));
+        contextList.cannon.ctx.stroke();
+    }
+    if (elementname === "particle"){ //requires x,y and size
+        // x and y are given.
+        contextList.particle.ctx.strokeStyle = `hsl(${hue},100%,50%,0.1)`;
+        contextList.particle.ctx.lineWidth = element.size || particleLineWidth;
+        contextList.particle.ctx.beginPath();
+        contextList.particle.ctx.moveTo(x, y);
+        contextList.particle.ctx.lineTo(x, y);
+        contextList.particle.ctx.stroke();
+
     }
 }
 
@@ -229,7 +243,7 @@ function toggleFieldVisibility(contextElement) {
 
     if (contextElement.visible) {
         if (contextElement.name === "grid") {
-            drawGrid(gridIterations);
+            drawGrid(contextElement.iterations);
         } else {
             showElements(contextElement);
         }
@@ -277,26 +291,18 @@ function attractionForce(m1, m2, d, G) {
 
 function drawPoint(x,y,size){
 
-    partCtx.lineWidth = size || particleLineWidth;
-    partCtx.beginPath();
-    partCtx.moveTo(x, y);
-    partCtx.lineTo(x, y);
-    partCtx.stroke();
+
 }
 
 function drawParticles() {
     let particles = contextList.particle.elements;
     for (let i = 0; i < particles.length; i++) {
-
         let particle = particles[i];
-        let x = particle.posVector.x;
-        let y = particle.posVector.y;
-        let size = particle.size;
-        partCtx.strokeStyle = `hsl(${hue},100%,50%,0.1)`;
 
-        drawPoint(x,y,size);
+        drawElement(particle,"particle");
 
         if (mirrored) {
+
             drawPoint(field.x - x, y,size);
             drawPoint(x, field.y - y,size);
             drawPoint(field.x - x, field.y - y,size);
@@ -329,48 +335,39 @@ function reset() {
     motionActive = false;
 }
 
-function toggleGrid(visible){
-    if (visible){
-        drawGrid(gridIterations);
-    } else {
-        gridCtx.clearRect(0,0,field.x,field.y);
-    }
-}
-
 function drawGrid(iterations){
 
     let hue = 0;
     let additiveHue = 360/iterations;
 
-    gridCtx.lineWidth = iterations/2; //${(iterations*2)}
+    contextList.grid.ctx.lineWidth = iterations/2; //${(iterations*2)}
     let i = 0;
     function drawLineX(x1,x2,hue,i){
-        gridCtx.strokeStyle = `hsl(${hue},100%,80%,0.5`;
-        let lineWidth = (iterations-i)/2;
-        gridCtx.lineWidth = lineWidth;
+        contextList.grid.ctx.strokeStyle = `hsl(${hue},100%,80%,0.5`;
+
+        contextList.grid.ctx.lineWidth = (iterations-i)/2;
         if (i===iterations)return;
         let x = (x1+x2)/2;
-        gridCtx.beginPath();
-        gridCtx.moveTo(x,field.y);
-        gridCtx.lineTo(x,0);
-        gridCtx.stroke();
+        contextList.grid.ctx.beginPath();
+        contextList.grid.ctx.moveTo(x,field.y);
+        contextList.grid.ctx.lineTo(x,0);
+        contextList.grid.ctx.stroke();
         i++;
         hue += additiveHue;
         drawLineX(x1,x,hue,i);
         drawLineX(x,x2,hue,i);
     }
     function drawLineY(y1,y2,hue,i){
-        let lineWidth = (iterations-i)/2;
-        gridCtx.lineWidth = lineWidth;
-        gridCtx.strokeStyle = `hsl(${hue},100%,80%,0.5`;
+
+        contextList.grid.ctx.lineWidth = (iterations-i)/2;
+        contextList.grid.ctx.strokeStyle = `hsl(${hue},100%,80%,0.5`;
         if (i===iterations)return;
         let y = (y1+y2)/2;
-        let dif = y2-y1;
 
-        gridCtx.beginPath();
-        gridCtx.moveTo(field.x,y);
-        gridCtx.lineTo(0,y);
-        gridCtx.stroke();
+        contextList.grid.ctx.beginPath();
+        contextList.grid.ctx.moveTo(field.x,y);
+        contextList.grid.ctx.lineTo(0,y);
+        contextList.grid.ctx.stroke();
 
         i++;
         hue += additiveHue;
@@ -389,7 +386,7 @@ function snapToNearestInterception(x,y){
 
     let interval = Math.max(field.x,field.y);
 
-    for (let i = 0; i<gridIterations;i++){
+    for (let i = 0; i<contextList.grid.iterations;i++){
         interval = interval/2;
     }
 
