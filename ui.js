@@ -91,13 +91,13 @@ function calculateG(x, reverse = false) {
     if (!reverse) {
         return vorzeichen * (1 / 25 * Math.pow(x, 2));
     } else {
-        return Math.sqrt(x * vorzeichen * 25);
+        return vorzeichen * Math.sqrt(x * vorzeichen * 25);
     }
 }
 
 function updateGravitationRange() {
     gravitationRange.val(calculateG(G, true));
-    gravitationRangeValue.text(G);
+    gravitationRangeValue.text(G.toFixed(1));
 }
 
 //===============================================================================
