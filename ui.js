@@ -90,6 +90,10 @@ function calculateG(x) {
     return 1 / 50 * Math.pow(x, 3);
 }
 
+function updateGravitationRange() {
+    gravitationRangeValue.text(G);
+}
+
 //===============================================================================
 //                              Slider-Setup
 //===============================================================================
@@ -100,8 +104,8 @@ let gravitationRangeValue = $("#gravitationRange-value");
 gravitationRangeValue.text(gravitationRange.val());
 
 gravitationRange.on("slide click" , () =>  {
-    gravitationRangeValue.text(calculateG(gravitationRange.val()));
     G = calculateG(gravitationRange.val());
+    updateGravitationRange();
 });
 
 let gridRange = $("#gridRange");

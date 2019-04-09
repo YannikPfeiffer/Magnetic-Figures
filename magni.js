@@ -438,10 +438,12 @@ document.addEventListener('keydown', function (e) {
 
     if (e.code === "BracketRight") {
         G = G + 0.1;
+        updateGravitationRange();
     }
 
-    if (e.code === "Slash") {
+    if (e.code === "Slash" || e.code === "Backslash") {
         G = G - 0.1;
+        updateGravitationRange();
     }
 
     if (e.code === "KeyM") { //enables mirror divided by 4
