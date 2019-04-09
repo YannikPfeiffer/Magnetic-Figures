@@ -15,7 +15,7 @@ canvas{
     z-index: 2;
 }
 
-#attractors {
+#objects {
     pointer-events: none;
     background: transparent;
     position: absolute;
