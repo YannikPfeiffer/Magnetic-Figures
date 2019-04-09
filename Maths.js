@@ -41,3 +41,20 @@ function factorVector(vector, factor, factorIsVector=false){
     //console.log("vX,vY,factor, respX,respY: ",vector.x,vector.y,factor, x,y);
     return {x:x,y:y};
 }
+
+function calcDegree(startVector,destVector={x:0,y:0}){
+    let difVec = subVectors(startVector,destVector);
+    let radians = Math.atan(difVec.y / difVec.x);
+    cons
+    return radians * 360/Math.PI;
+}
+
+function calcDegree2DirectionVector(degree) {
+    let x = Math.cos(degree);
+    let y = Math.sin(degree);
+    return {x: x, y: y};
+}
+
+function calcDistance(vector1,vector2={x:0,y:0}){
+    return Math.sqrt(Math.pow(vector2.y-vector1.y,2)+Math.pow(vector2.x-vector1.x,2));
+}

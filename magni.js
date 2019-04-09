@@ -19,7 +19,7 @@ let attractors = [];
 let attractorSettings = {visible:true};
 
 let cannons = [];
-let cannonSettings = {visible:true,active:false,particlesPerSecond:2,bullets:100};
+let cannonSettings = {visible:true,active:false,shotsPerSecond:2,particlesPerShot:100,bullets:2000,spread:90,veloctiyDeviation:100};
 
 let gridSettings = {visible: false, iterations: 5};
 
@@ -74,34 +74,50 @@ function setup() {
 
 }
 
-function newCannon(x, y, velVector, deviationDegree=0){
-    console.log("newCannon: velvector: "+velVector.x,velVector.y);
-    drawCannon(x, y, velVector);
-    let fps = cannonSettings.particlesPerSecond; //Fire per second
-    let bullets = cannonSettings.bullets;
-    let particlesFired = 0;
+function newCannon(posVector, velVector){
+
     let velVec = velVector;
+    let fps = cannonSettings.shotsPerSecond; //Fire per second
+    let bullets = cannonSettings.bullets; //after how many shots should the cannon stop
+    let particlesFired = 0; //counter on how many bullets were already shot
+
+    let deviationDegree = cannonSettings.spread; //degree on how much particles are able to offset from the cannons fire direction
+    let cannonDegree = calcDegree(velVec);
+    let particlesPerShot = cannonSettings.particlesPerShot; //particles per shot
+    let speedDeviation = cannonSettings.veloctiyDeviation;
+
+
     this.interval = setInterval(function(){
         if (globalSettings.motionActive && cannonSettings.active) {
 
-            let randomAmp = Math.random()*deviationDegree+(1-deviationDegree);
-            //console.log(randomAmp);
-            velVec = factorVector(velVector,randomAmp);
+            for (let i = 0; i<particlesPerShot;i++){
+                let speedFactor = (100-Math.random()*speedDeviation)/100;
+                let velVector = factorVector(velVec,speedFactor);
+                let speed = calcDistance(velVector);
+                let randomAdditiveDegree = deviationDegree/2-Math.random()*deviationDegree;
+                console.log(cannonDegree);
+                let dirVec = calcDegree2DirectionVector(cannonDegree+randomAdditiveDegree);
+                velVector = factorVector(dirVec,speed);
+                newParticle(posVector,velVector);
+                particlesFired++;
+            }
 
-            newParticle(x, y, velVec);
-            particlesFired++;
-            //console.log(particlesFired);
-            if (bullets<particlesFired){
+            if (particlesFired>=bullets){
                 console.log("cannon is done firing.");
                 clearInterval(this.interval);
             }
         }
     },1000 / fps);
-    let cannon = {particlesFired:particlesFired,velVec:velVec,interval:this.interval, x:x, y:y};
+    let cannon = {particlesFired:particlesFired,speedDeviation:speedDeviation,deviationDegree:deviationDegree,velVector:velVec,interval:this.interval, posVector:posVector};
+    drawCannon(cannon);
     cannons.push(cannon);
 }
 
-function drawCannon(x, y, velVector) {
+function drawCannon(cannon) {
+    let x = cannon.posVector.x;
+    let y = cannon.posVector.y;
+    let velVector = cannon.velVector;
+
     objectCtx.strokeStyle = `rgba(255,255,255)`;
     objectCtx.beginPath();
     objectCtx.ellipse(x, y, 5, 5,0,0,360);
@@ -113,48 +129,53 @@ function drawCannon(x, y, velVector) {
     objectCtx.lineWidth = defaultLineWidth;
 }
 
-function newParticleGroup(x, y) {
+function newParticleGroup(x,y) {
+
+    let posVec = {x:x,y:y};
 
     for (let i = 0; i < particleSettings.deployCount; i++) {
         let velocity = randomVelocity(1);
-        newParticle(x, y,velocity);
+        newParticle(posVec,velocity);
     }
 }
 
-function newParticle(x, y,velocityVector) {
-    let posVector = {x: x, y: y};
+function newParticle(posVector ,velocityVector) {
+
     let velVector = velocityVector;
     let accVector = {x: 0, y: 0};
     let weight = 1;
     let size = particleSettings.lineWidth;
     let particle = {posVector: posVector, velVector: velVector, accVector: accVector, weight: weight, size:size};
-    drawPoint(x,y,size);
+    drawParticle(posVector.x,posVector.y,size);
     particles.push(particle);
     //console.log("new Particle",velVector);
 }
 
-function newAttractor(x, y) {
-    let posVector = {x: x, y: y};
+function newAttractor(posVector) {
+
     let weight = 1;
     let attractor = {posVector: posVector, weight: weight};
     objectCtx.lineWidth = 5;
     objectCtx.strokeStyle = `rgba(255, 255, 255)`;
-    drawAttractor(x, y);
+
     console.log("draw attractor");
     objectCtx.lineWidth = defaultLineWidth;
     attractors.push(attractor);
+    drawAttractor(attractor);
 }
 
 function showObjects() {
     attractors.forEach(function (attractor) {
-       drawAttractor(attractor.posVector.x, attractor.posVector.y)
+       drawAttractor(attractor);
     });
     cannons.forEach(function (cannon) {
-        drawCannon(cannon.x, cannon.y, cannon.velVec);
+        drawCannon(cannon);
     });
 }
 
-function drawAttractor(x, y) {
+function drawAttractor(attractor) {
+    let x = attractor.posVector.x;
+    let y = attractor.posVector.y;
     objectCtx.lineWidth = 5;
     objectCtx.strokeStyle = `rgb(255, 255,255)`;
     objectCtx.beginPath();
@@ -186,14 +207,10 @@ function calcAcceleration(element) {
         let difVec = subVectors(attractor.posVector, element.posVector);
 
         if (false) { //calculates degree and its x,y coordinates in which one particle must travel to reach the attractor (possible solution to issue with particles
-            let degree = Math.atan(difVec.y / difVec.x);
-            //degree
+            let degree = calcDegree(difVec);
 
-            let x = Math.cos(degree);
-            let y = Math.sin(degree);
-            let vector = {x: x, y: y};
+            let vector = calcDegree2DirectionVector(degree);
             difVec = vector;
-            console.log(difVec);
         }
 
 
@@ -209,9 +226,7 @@ function attractionForce(m1, m2, d, G) {
     return (G * (m1 + m2)) / (d * d);
 }
 
-
-
-function drawPoint(x,y,size){
+function drawParticle(x, y, size){
     partCtx.lineWidth = size || particleSettings.lineWidth;
     partCtx.beginPath();
     partCtx.moveTo(x, y);
@@ -228,12 +243,12 @@ function drawParticles() {
         let size = particle.size;
         partCtx.strokeStyle = `hsl(${hue},100%,50%,0.1)`;
 
-        drawPoint(x,y,size);
+        drawParticle(x,y,size);
 
         if (globalSettings.mirrored) {
-            drawPoint(field.x - x, y,size);
-            drawPoint(x, field.y - y,size);
-            drawPoint(field.x - x, field.y - y,size);
+            drawParticle(field.x - x, y,size);
+            drawParticle(x, field.y - y,size);
+            drawParticle(field.x - x, field.y - y,size);
         }
 
     }
@@ -278,8 +293,7 @@ function drawGrid(){
     let i = 0;
     function drawLineX(x1,x2,hue,i){
         gridCtx.strokeStyle = `hsl(${hue},100%,80%,0.5`;
-        let lineWidth = (iterations-i)/2;
-        gridCtx.lineWidth = lineWidth;
+        gridCtx.lineWidth = (iterations-i)/2;
         if (i===iterations)return;
         let x = (x1+x2)/2;
         gridCtx.beginPath();
@@ -315,15 +329,16 @@ function drawGrid(){
     drawLineY(middleY-init,middleY+init,hue,i);
 }
 
-function snapToNearestInterception(x,y){
+function snapToNearestInterception(posVector){
 
-    let init = Math.max(field.x,field.y)/2;
     let interval = Math.max(field.x,field.y);
 
     for (let i = 0; i<gridSettings.iterations;i++){
         interval = interval/2;
     }
 
+    let x = posVector.x;
+    let y = posVector.y;
 
     let yOffset = (field.y/2)%interval;
     let deltaX = x%interval;
@@ -455,24 +470,23 @@ document.addEventListener('keydown', function (e) {
 });
 
 particleLayerElem.addEventListener('mousedown', function (e) {
-    let x = e.offsetX;
-    let y = e.offsetY;
+    let posVector = {x:e.offsetX,y:e.offsetY};
+
     if (gridSettings.visible){
-        let vector = snapToNearestInterception(x,y);
-        x = vector.x;
-        y = vector.y;
+        posVector = snapToNearestInterception(posVector);
     }
     if (e.button === 0) {
         if (globalSettings.cannonMode){
             //console.log("New cannon");
-            let velVector = randomVelocity(1);
-            newCannon(x,y,velVector,0,10000,0.1);
+            let velVec = randomVelocity(1);
+            newCannon(posVector,velVec);
         }else {
-            newParticleGroup(x, y);
+
+            newParticleGroup(posVector.x,posVector.y);
         }
     }
     if (e.button === 2) {
-        newAttractor(x, y);
+        newAttractor(posVector);
     }
     console.log(e.button);
 });
