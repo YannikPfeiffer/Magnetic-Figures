@@ -123,3 +123,14 @@ gridRange.on("slide, click", () => {
     gridRangeValue.text(gridRange.val());
     gridIterations = parseInt(gridRange.val());
 });
+
+let lineWidthRange = $("#lineWidthRange");
+let lineWidthRangeValue = $("#lineWidthRange-value");
+
+lineWidthRange.val(particleLineWidth);
+lineWidthRangeValue.text(particleLineWidth);
+
+lineWidthRange.on("slide click", () => {
+    lineWidthRangeValue.text(lineWidthRange.val())
+    particleLineWidth = parseInt(lineWidthRange.val());
+});
