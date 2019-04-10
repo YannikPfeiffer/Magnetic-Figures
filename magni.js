@@ -19,7 +19,7 @@ let attractors = [];
 let attractorSettings = {visible:true};
 
 let cannons = [];
-let cannonSettings = {visible:true,active:false,shotsPerSecond:2,particlesPerShot:100,bullets:2000,spread:90,veloctiyDeviation:100};
+let cannonSettings = {positionSet:{x:0,y:0},visible:true,active:false,shotsPerSecond:1,particlesPerShot:1000,bullets:10000,spread:100,veloctiyDeviation:0}; //spread: 0-200%, velocityDeviation: 0-100%,
 
 let gridSettings = {visible: false, iterations: 5};
 
@@ -54,19 +54,6 @@ function randomVelocity(max, randomAmplifier = false) {
     return {x: x, y: y};
 }
 
-function randomVector(maxNumber, secondMaxNumber = maxNumber, onlyPositiv = false) {
-    let x;
-    let y;
-    if (!onlyPositiv) {
-        x = Math.random() * maxNumber * 2 - maxNumber;
-        y = Math.random() * secondMaxNumber * 2 - secondMaxNumber;
-    } else {
-        x = Math.random() * maxNumber;
-        y = Math.random() * secondMaxNumber;
-    }
-    return {x: x, y: y}
-}
-
 function setup() {
 
     field.x = window.innerWidth;
@@ -74,15 +61,18 @@ function setup() {
 
 }
 
-function newCannon(posVector, velVector){
+function newCannon(posVector, dirVector){ //dirVector in this sense is the point selected at which the cannon is directed at
 
-    let velVec = velVector;
+    let velVec = subVectors(dirVector,posVector);
+    velVec = factorVector(velVec,0.01);
     let fps = cannonSettings.shotsPerSecond; //Fire per second
     let bullets = cannonSettings.bullets; //after how many shots should the cannon stop
     let particlesFired = 0; //counter on how many bullets were already shot
 
-    let deviationDegree = cannonSettings.spread; //degree on how much particles are able to offset from the cannons fire direction
-    let cannonDegree = calcDegree(velVec);
+    let deviationDegree = cannonSettings.spread*1.8; //degree on how much particles are able to offset from the cannons fire direction
+    let cannonDegree = getAngle(velVec.x,velVec.y);
+    cannonDegree = 360 - cannonDegree + 90;
+    console.log(cannonDegree);
     let particlesPerShot = cannonSettings.particlesPerShot; //particles per shot
     let speedDeviation = cannonSettings.veloctiyDeviation;
 
@@ -92,12 +82,17 @@ function newCannon(posVector, velVector){
 
             for (let i = 0; i<particlesPerShot;i++){
                 let speedFactor = (100-Math.random()*speedDeviation)/100;
-                let velVector = factorVector(velVec,speedFactor);
-                let speed = calcDistance(velVector);
+                let speed = calcDistance(velVec);
+                speed = speed * speedFactor;
+
                 let randomAdditiveDegree = deviationDegree/2-Math.random()*deviationDegree;
-                console.log(cannonDegree);
-                let dirVec = calcDegree2DirectionVector(cannonDegree+randomAdditiveDegree);
-                velVector = factorVector(dirVec,speed);
+
+                let totalDegree = randomAdditiveDegree+cannonDegree; //works correct
+
+                let dirVec = degToPoint(totalDegree,1);
+                //console.log(totalDegree,dirVec);
+                let velVector = factorVector(dirVec,speed);
+                //console.log(velVector);
                 newParticle(posVector,velVector);
                 particlesFired++;
             }
@@ -108,7 +103,7 @@ function newCannon(posVector, velVector){
             }
         }
     },1000 / fps);
-    let cannon = {particlesFired:particlesFired,speedDeviation:speedDeviation,deviationDegree:deviationDegree,velVector:velVec,interval:this.interval, posVector:posVector};
+    let cannon = {cannonDegree:cannonDegree,particlesFired:particlesFired,speedDeviation:speedDeviation,deviationDegree:deviationDegree,velVector:velVec,interval:this.interval, posVector:posVector};
     drawCannon(cannon);
     cannons.push(cannon);
 }
@@ -124,7 +119,7 @@ function drawCannon(cannon) {
     objectCtx.stroke();
     objectCtx.beginPath();
     objectCtx.moveTo(x,y);
-    objectCtx.lineTo(x+(velVector.x*5),y+(velVector.y*5));
+    objectCtx.lineTo(x+(velVector.x*100),y+(velVector.y*100));
     objectCtx.stroke();
     objectCtx.lineWidth = defaultLineWidth;
 }
@@ -209,11 +204,9 @@ function calcAcceleration(element) {
         if (false) { //calculates degree and its x,y coordinates in which one particle must travel to reach the attractor (possible solution to issue with particles
             let degree = calcDegree(difVec);
 
-            let vector = calcDegree2DirectionVector(degree);
+            let vector = degToPoint(degree,1);
             difVec = vector;
         }
-
-
 
         accVec = addVectors(accVec, factorVector(difVec, strength)); //difVec before
     }
@@ -469,6 +462,21 @@ document.addEventListener('keydown', function (e) {
     }
 });
 
+particleLayerElem.addEventListener('mouseup', function(e){
+
+    let posVector = {x:e.offsetX,y:e.offsetY};
+
+    if (gridSettings.visible){
+        posVector = snapToNearestInterception(posVector);
+    }
+
+    if (e.button === 0){
+        if (globalSettings.cannonMode) {
+            newCannon(cannonSettings.positionSet, posVector);
+        }
+    }
+});
+
 particleLayerElem.addEventListener('mousedown', function (e) {
     let posVector = {x:e.offsetX,y:e.offsetY};
 
@@ -478,8 +486,8 @@ particleLayerElem.addEventListener('mousedown', function (e) {
     if (e.button === 0) {
         if (globalSettings.cannonMode){
             //console.log("New cannon");
-            let velVec = randomVelocity(1);
-            newCannon(posVector,velVec);
+            cannonSettings.positionSet = posVector;
+
         }else {
 
             newParticleGroup(posVector.x,posVector.y);
