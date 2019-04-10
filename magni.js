@@ -13,13 +13,13 @@ const objectCtx = objectElem.getContext('2d');
 
 
 let particles = [];
-let particleSettings = {lineWidth:3,deployCount:1000};
+let particleSettings = {lineWidth:3,deployCount:1000,rainbowMode:false}; //rainbow mode is a temporary lazy way to set the color static
 
 let attractors = [];
 let attractorSettings = {visible:true};
 
 let cannons = [];
-let cannonSettings = {positionSet:{x:0,y:0},visible:true,active:false,shotsPerSecond:1,particlesPerShot:1000,bullets:10000,spread:100,veloctiyDeviation:0}; //spread: 0-200%, velocityDeviation: 0-100%,
+let cannonSettings = {positionSet:{x:0,y:0},visible:true,active:false,shotsPerSecond:200,particlesPerShot:1,bullets:200,spread:50,veloctiyDeviation:0}; //spread: 0-200%, velocityDeviation: 0-100%,
 
 let gridSettings = {visible: false, iterations: 5};
 
@@ -29,6 +29,7 @@ let globalSettings = {motionActive:false, cannonMode:false, mirrored: false,trac
 let G = 1; //Gravitational constant
 let field = {x: 100, y: 100};
 let hue = 0;
+let particleOpacity = 1;
 
 //Drawing properties
 const strokeColor = `hsl(100, 100%, 50%, 0.01)`;
@@ -77,7 +78,7 @@ function newCannon(posVector, dirVector){ //dirVector in this sense is the point
     let speedDeviation = cannonSettings.veloctiyDeviation;
 
 
-    this.interval = setInterval(function(){
+    let interval = setInterval(function(){
         if (globalSettings.motionActive && cannonSettings.active) {
 
             for (let i = 0; i<particlesPerShot;i++){
@@ -99,7 +100,7 @@ function newCannon(posVector, dirVector){ //dirVector in this sense is the point
 
             if (particlesFired>=bullets){
                 console.log("cannon is done firing.");
-                clearInterval(this.interval);
+                clearInterval(interval);
             }
         }
     },1000 / fps);
@@ -234,8 +235,7 @@ function drawParticles() {
         let x = particle.posVector.x;
         let y = particle.posVector.y;
         let size = particle.size;
-        partCtx.strokeStyle = `hsl(${hue},100%,50%,0.1)`;
-
+        partCtx.strokeStyle = `hsl(${hue},100%,50%,${particleOpacity})`;
         drawParticle(x,y,size);
 
         if (globalSettings.mirrored) {
@@ -511,6 +511,8 @@ setInterval(function () {
             particle.velVector = addVectors(particle.velVector, particle.accVector);
         }
         drawParticles();
-        hue++;
+        if (particleSettings.rainbowMode) {
+            hue++;
+        }
     }
 }, 1000 / 200);
