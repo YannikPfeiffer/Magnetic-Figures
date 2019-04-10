@@ -23,7 +23,7 @@ let cannonSettings = {positionSet:{x:0,y:0},visible:true,active:false,shotsPerSe
 
 let gridSettings = {visible: false, iterations: 5};
 
-let globalSettings = {motionActive:false, cannonMode:false, mirrored: false,};
+let globalSettings = {motionActive:false, cannonMode:false, mirrored: false,tracePath:false};
 
 //Variables that are used more frequently are not put in the globalSettings variable due to performance optimization
 let G = 1; //Gravitational constant
@@ -501,6 +501,9 @@ particleLayerElem.addEventListener('mousedown', function (e) {
 
 setInterval(function () {
     if (globalSettings.motionActive) {
+        if (!globalSettings.tracePath){
+            partCtx.clearRect(0,0,field.x,field.y);
+        }
         for (let i = 0; i < particles.length; i++) {
             let particle = particles[i];
             calcAcceleration(particle);
