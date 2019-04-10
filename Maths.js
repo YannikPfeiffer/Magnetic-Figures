@@ -41,3 +41,37 @@ function factorVector(vector, factor, factorIsVector=false){
     //console.log("vX,vY,factor, respX,respY: ",vector.x,vector.y,factor, x,y);
     return {x:x,y:y};
 }
+
+function calcDegree(startVector,destVector={x:0,y:0}){
+    let difVec = subVectors(startVector,destVector);
+    let radians = Math.atan(difVec.y / difVec.x);
+    return radians * 360/Math.PI;
+}
+
+function degToPoint(deg, diameter) {
+    var rad = Math.PI * deg / 180;
+    var r = diameter / 2;
+    return {x: r * Math.cos(rad), y: r * Math.sin(rad)};
+}
+
+function calcDistance(vector1,vector2={x:0,y:0}){
+    return Math.sqrt(Math.pow(vector2.y-vector1.y,2)+Math.pow(vector2.x-vector1.x,2));
+}
+
+function getAngle(x, y) {
+    let angle = Math.atan2(x, y) * 180 / Math.PI;
+    return angle < 0 ? 360 + angle : angle;  // Ensure positive angle
+}
+
+function randomVector(maxNumber, secondMaxNumber = maxNumber, onlyPositiv = false) {
+    let x;
+    let y;
+    if (!onlyPositiv) {
+        x = Math.random() * maxNumber * 2 - maxNumber;
+        y = Math.random() * secondMaxNumber * 2 - secondMaxNumber;
+    } else {
+        x = Math.random() * maxNumber;
+        y = Math.random() * secondMaxNumber;
+    }
+    return {x: x, y: y}
+}
