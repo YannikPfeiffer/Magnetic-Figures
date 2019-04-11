@@ -3,70 +3,46 @@
  * @type {HTMLCanvasElement}
  */
 const particleLayerElem = document.getElementById("particleLayer");
-/**
- * The Rendering Context
- * @type {CanvasRenderingContext2D | WebGLRenderingContext}
- */
 const partCtx = particleLayerElem.getContext('2d');
 
 const gridElem = document.getElementById("grid");
-
 const gridCtx = gridElem.getContext('2d');
 
-const attractorElem = document.getElementById("attractors");
-const attractorCtx = attractorElem.getContext('2d');
+const objectElem = document.getElementById("objects");
+const objectCtx = objectElem.getContext('2d');
 
-/**
- * All registered Particles
- * @type {Array}
- */
+
 let particles = [];
-/**
- * All registered Attractors
- * @type {Array}
- */
+let particleSettings = {lineWidth:3,deployCount:1000,rainbowMode:false}; //rainbow mode is a temporary lazy way to set the color static
+
 let attractors = [];
-/**
- * Is the motion activated?
- * @type {boolean}
- */
-let motionActive = false;
+let attractorSettings = {visible:true};
 
 let cannons = [];
-/**
- * Should there be 10x more particles?
- * @type {boolean}
- */
-let tonsOfParticles = false;
-/**
- * The color of the particles
- * @type {boolean}
- */
-let cannonMode = false;
-let cannonsActive = false;
-let mirrored = false;
-let gridVisible = false;
-let hue = 0;
+let cannonSettings = {positionSet:{x:0,y:0},visible:true,active:false,shotsPerSecond:200,particlesPerShot:1,bullets:200,spread:50,veloctiyDeviation:0}; //spread: 0-200%, velocityDeviation: 0-100%,
 
-let attractorsVisible = true;
+let gridSettings = {visible: false, iterations: 5};
+
+let globalSettings = {motionActive:false, cannonMode:false, mirrored: false,tracePath:false};
+
+//Variables that are used more frequently are not put in the globalSettings variable due to performance optimization
+let G = 1; //Gravitational constant
+let field = {x: 100, y: 100};
+let hue = 0;
+let particleOpacity = 1;
 
 //Drawing properties
-const strokeColor = `hsl(100, 100%, 80%, 0.01)`;
+const strokeColor = `hsl(100, 100%, 50%, 0.01)`;
 const defaultLineWidth = 1;
-let particleLineWidth = 3;
-let gridIterations = 6;
 partCtx.strokeStyle = strokeColor;
 
 partCtx.lineJoin = 'round';
 partCtx.lineCap = 'round';
 partCtx.lineWidth = "1px";
 
-attractorCtx.lineJoin = 'round';
-attractorCtx.lineCap = 'round';
-attractorCtx.lineWidth = "2px";
-
-let G = 1; //Gravitational constant
-let field = {x: 100, y: 100};
+objectCtx.lineJoin = 'round';
+objectCtx.lineCap = 'round';
+objectCtx.lineWidth = "2px";
 
 function randomVelocity(max, randomAmplifier = false) {
     let degree = Math.random() * 360;
@@ -79,23 +55,6 @@ function randomVelocity(max, randomAmplifier = false) {
     return {x: x, y: y};
 }
 
-function randomVector(maxNumber, secondMaxNumber = maxNumber, onlyPositiv = false) {
-    let x;
-    let y;
-    if (!onlyPositiv) {
-        x = Math.random() * maxNumber * 2 - maxNumber;
-        y = Math.random() * secondMaxNumber * 2 - secondMaxNumber;
-    } else {
-        x = Math.random() * maxNumber;
-        y = Math.random() * secondMaxNumber;
-    }
-    return {x: x, y: y}
-}
-
-function updateCanvasSize() { //takes window properties and sets canvas to its size
-
-}
-
 function setup() {
 
     field.x = window.innerWidth;
@@ -103,94 +62,130 @@ function setup() {
 
 }
 
-function newCannon(x, y, velVector, fireRate, particleCount=10000, deviationDegree=0){
-    console.log("newCannon: velvector: "+velVector.x,velVector.y);
-    partCtx.strokeStyle = `rgba(255,255,255)`;
-    partCtx.beginPath();
-    partCtx.ellipse(x, y, 5, 5,0,0,360);
-    partCtx.stroke();
-    partCtx.beginPath();
-    partCtx.moveTo(x,y);
-    partCtx.lineTo(x+(velVector.x*5),y+(velVector.y*5));
-    partCtx.stroke();
-    //let timeout = 1000/fireRate;
-    let particlesFired = 0;
-    let velVec = velVector;
-    this.interval = setInterval(function(){
-        if (motionActive && cannonsActive) {
+function newCannon(posVector, dirVector){ //dirVector in this sense is the point selected at which the cannon is directed at
 
-            let randomAmp = Math.random()*deviationDegree+(1-deviationDegree);
-            //console.log(randomAmp);
-            velVec = factorVector(velVector,randomAmp);
+    let velVec = subVectors(dirVector,posVector);
+    velVec = factorVector(velVec,0.01);
+    let fps = cannonSettings.shotsPerSecond; //Fire per second
+    let bullets = cannonSettings.bullets; //after how many shots should the cannon stop
+    let particlesFired = 0; //counter on how many bullets were already shot
 
-            newParticle(x, y, velVec);
-            particlesFired++;
-            //console.log(particlesFired);
-            if (particleCount<particlesFired){
+    let deviationDegree = cannonSettings.spread*1.8; //degree on how much particles are able to offset from the cannons fire direction
+    let cannonDegree = getAngle(velVec.x,velVec.y);
+    cannonDegree = 360 - cannonDegree + 90;
+    console.log(cannonDegree);
+    let particlesPerShot = cannonSettings.particlesPerShot; //particles per shot
+    let speedDeviation = cannonSettings.veloctiyDeviation;
+
+
+    let interval = setInterval(function(){
+        if (globalSettings.motionActive && cannonSettings.active) {
+
+            for (let i = 0; i<particlesPerShot;i++){
+                let speedFactor = (100-Math.random()*speedDeviation)/100;
+                let speed = calcDistance(velVec);
+                speed = speed * speedFactor;
+
+                let randomAdditiveDegree = deviationDegree/2-Math.random()*deviationDegree;
+
+                let totalDegree = randomAdditiveDegree+cannonDegree; //works correct
+
+                let dirVec = degToPoint(totalDegree,1);
+                //console.log(totalDegree,dirVec);
+                let velVector = factorVector(dirVec,speed);
+                //console.log(velVector);
+                newParticle(posVector,velVector);
+                particlesFired++;
+            }
+
+            if (particlesFired>=bullets){
                 console.log("cannon is done firing.");
-                clearInterval(this.interval);
+                clearInterval(interval);
             }
         }
-    },fireRate);
-    let cannon = {particlesFired:particlesFired,velVec:velVec,interval:interval};
+    },1000 / fps);
+    let cannon = {cannonDegree:cannonDegree,particlesFired:particlesFired,speedDeviation:speedDeviation,deviationDegree:deviationDegree,velVector:velVec,interval:this.interval, posVector:posVector};
+    drawCannon(cannon);
     cannons.push(cannon);
 }
 
-function newParticleGroup(x, y, count = 1000) {
-    if (tonsOfParticles) {
-        count = count * 10;
-        console.log("ye", count);
-    }
-    for (let i = 0; i < count; i++) {
+function drawCannon(cannon) {
+    let x = cannon.posVector.x;
+    let y = cannon.posVector.y;
+    let velVector = cannon.velVector;
+
+    objectCtx.strokeStyle = `rgba(255,255,255)`;
+    objectCtx.beginPath();
+    objectCtx.ellipse(x, y, 5, 5,0,0,360);
+    objectCtx.stroke();
+    objectCtx.beginPath();
+    objectCtx.moveTo(x,y);
+    objectCtx.lineTo(x+(velVector.x*100),y+(velVector.y*100));
+    objectCtx.stroke();
+    objectCtx.lineWidth = defaultLineWidth;
+}
+
+function newParticleGroup(x,y) {
+
+    let posVec = {x:x,y:y};
+
+    for (let i = 0; i < particleSettings.deployCount; i++) {
         let velocity = randomVelocity(1);
-        newParticle(x, y,velocity);
+        newParticle(posVec,velocity);
     }
 }
 
-function newParticle(x, y,velocityVector) {
-    let posVector = {x: x, y: y};
+function newParticle(posVector ,velocityVector) {
+
     let velVector = velocityVector;
     let accVector = {x: 0, y: 0};
     let weight = 1;
-    let size = particleLineWidth;
+    let size = particleSettings.lineWidth;
     let particle = {posVector: posVector, velVector: velVector, accVector: accVector, weight: weight, size:size};
-    drawPoint(x,y,size);
+    drawParticle(posVector.x,posVector.y,size);
     particles.push(particle);
     //console.log("new Particle",velVector);
 }
 
-function newAttractor(x, y) {
-    let posVector = {x: x, y: y};
+function newAttractor(posVector) {
+
     let weight = 1;
     let attractor = {posVector: posVector, weight: weight};
-    attractorCtx.lineWidth = 5;
-    attractorCtx.strokeStyle = `rgba(255, 255, 255)`;
-    drawAttractor(x, y);
+    objectCtx.lineWidth = 5;
+    objectCtx.strokeStyle = `rgba(255, 255, 255)`;
+
     console.log("draw attractor");
-    attractorCtx.lineWidth = defaultLineWidth;
+    objectCtx.lineWidth = defaultLineWidth;
     attractors.push(attractor);
+    drawAttractor(attractor);
 }
 
-function showAttractors() {
+function showObjects() {
     attractors.forEach(function (attractor) {
-       attractorCtx.lineWidth = 5;
-       attractorCtx.strokeStyle = `rgb(255, 255,255)`;
-       drawAttractor(attractor.posVector.x, attractor.posVector.y)
-    })
+       drawAttractor(attractor);
+    });
+    cannons.forEach(function (cannon) {
+        drawCannon(cannon);
+    });
 }
 
-function drawAttractor(x, y) {
-    attractorCtx.beginPath();
-    attractorCtx.moveTo(x, y);
-    attractorCtx.lineTo(x, y);
-    attractorCtx.stroke();
+function drawAttractor(attractor) {
+    let x = attractor.posVector.x;
+    let y = attractor.posVector.y;
+    objectCtx.lineWidth = 5;
+    objectCtx.strokeStyle = `rgb(255, 255,255)`;
+    objectCtx.beginPath();
+    objectCtx.moveTo(x, y);
+    objectCtx.lineTo(x, y);
+    objectCtx.stroke();
+    objectCtx.lineWidth = defaultLineWidth;
 }
 
 function toggleAttractors() {
-    if (attractorsVisible) {
-        showAttractors();
+    if (attractorSettings.visible) {
+        showObjects();
     } else {
-        attractorCtx.clearRect(0, 0, field.x, field.y);
+        objectCtx.clearRect(0, 0, field.x, field.y);
     }
 }
 
@@ -208,17 +203,11 @@ function calcAcceleration(element) {
         let difVec = subVectors(attractor.posVector, element.posVector);
 
         if (false) { //calculates degree and its x,y coordinates in which one particle must travel to reach the attractor (possible solution to issue with particles
-            let degree = Math.atan(difVec.y / difVec.x);
-            //degree
+            let degree = calcDegree(difVec);
 
-            let x = Math.cos(degree);
-            let y = Math.sin(degree);
-            let vector = {x: x, y: y};
+            let vector = degToPoint(degree,1);
             difVec = vector;
-            console.log(difVec);
         }
-
-
 
         accVec = addVectors(accVec, factorVector(difVec, strength)); //difVec before
     }
@@ -231,10 +220,8 @@ function attractionForce(m1, m2, d, G) {
     return (G * (m1 + m2)) / (d * d);
 }
 
-
-
-function drawPoint(x,y,size){
-    partCtx.lineWidth = size || particleLineWidth;
+function drawParticle(x, y, size){
+    partCtx.lineWidth = size || particleSettings.lineWidth;
     partCtx.beginPath();
     partCtx.moveTo(x, y);
     partCtx.lineTo(x, y);
@@ -248,14 +235,13 @@ function drawParticles() {
         let x = particle.posVector.x;
         let y = particle.posVector.y;
         let size = particle.size;
-        partCtx.strokeStyle = `hsl(${hue},100%,50%,0.1)`;
+        partCtx.strokeStyle = `hsl(${hue},100%,50%,${particleOpacity})`;
+        drawParticle(x,y,size);
 
-        drawPoint(x,y,size);
-
-        if (mirrored) {
-            drawPoint(field.x - x, y,size);
-            drawPoint(x, field.y - y,size);
-            drawPoint(field.x - x, field.y - y,size);
+        if (globalSettings.mirrored) {
+            drawParticle(field.x - x, y,size);
+            drawParticle(x, field.y - y,size);
+            drawParticle(field.x - x, field.y - y,size);
         }
 
     }
@@ -269,30 +255,30 @@ function reset() {
     }
     cannons = [];
 
-    cannonMode = false;
-    cannonsActive = false;
+    globalSettings.cannonMode = false;
+    cannonSettings.active = false;
 
     G = 0.5;
     let h = particleLayerElem.height;
     let w = particleLayerElem.width;
     partCtx.clearRect(0, 0, w, h);
-    attractorCtx.clearRect(0, 0, w, h);
+    objectCtx.clearRect(0, 0, w, h);
 
-    tonsOfParticles = false;
-    mirrored = false;
-    motionActive = false;
+    globalSettings.mirrored = false;
+    globalSettings.motionActive = false;
 }
 
 function toggleGrid(visible){
     if (visible){
-        drawGrid(gridIterations);
+        drawGrid(gridSettings.iterations);
     } else {
         gridCtx.clearRect(0,0,field.x,field.y);
     }
 }
 
-function drawGrid(iterations){
+function drawGrid(){
 
+    let iterations = gridSettings.iterations;
     let hue = 0;
     let additiveHue = 360/iterations;
 
@@ -300,8 +286,7 @@ function drawGrid(iterations){
     let i = 0;
     function drawLineX(x1,x2,hue,i){
         gridCtx.strokeStyle = `hsl(${hue},100%,80%,0.5`;
-        let lineWidth = (iterations-i)/2;
-        gridCtx.lineWidth = lineWidth;
+        gridCtx.lineWidth = (iterations-i)/2;
         if (i===iterations)return;
         let x = (x1+x2)/2;
         gridCtx.beginPath();
@@ -314,12 +299,10 @@ function drawGrid(iterations){
         drawLineX(x,x2,hue,i);
     }
     function drawLineY(y1,y2,hue,i){
-        let lineWidth = (iterations-i)/2;
-        gridCtx.lineWidth = lineWidth;
+        gridCtx.lineWidth = (iterations-i)/2;
         gridCtx.strokeStyle = `hsl(${hue},100%,80%,0.5`;
         if (i===iterations)return;
         let y = (y1+y2)/2;
-        let dif = y2-y1;
 
         gridCtx.beginPath();
         gridCtx.moveTo(field.x,y);
@@ -339,53 +322,16 @@ function drawGrid(iterations){
     drawLineY(middleY-init,middleY+init,hue,i);
 }
 
-function drawGridRelativeToScreen(iterations){  //not recommended
+function snapToNearestInterception(posVector){
 
-    let hue = 0;
-    let additiveHue = 360/iterations;
-
-    gridCtx.lineWidth = "5px";
-    let i = 0;
-    function drawLineX(x1,x2,hue,i){
-        gridCtx.strokeStyle = `hsl(${hue},100%,80%,0.5`;
-        if (i===iterations)return;
-        let x = (x1+x2)/2;
-        gridCtx.beginPath();
-        gridCtx.moveTo(x,field.y);
-        gridCtx.lineTo(x,0);
-        gridCtx.stroke();
-        i++;
-        hue += additiveHue;
-        drawLineX(x1,x,hue,i);
-        drawLineX(x,x2,hue,i);
-    }
-    function drawLineY(y1,y2,hue,i){
-        gridCtx.strokeStyle = `hsl(${hue},100%,80%,0.5`;
-        if (i===iterations)return;
-        let y = (y1+y2)/2;
-        gridCtx.beginPath();
-        gridCtx.moveTo(field.x,y);
-        gridCtx.lineTo(0,y);
-        gridCtx.stroke();
-        i++;
-        hue += additiveHue;
-        drawLineY(y1,y,hue,i);
-        drawLineY(y,y2,hue,i);
-
-    }
-    drawLineX(0,field.x,hue,i);
-    drawLineY(0,field.y,hue,i);
-}
-
-function snapToNearestInterception(x,y){
-
-    let init = Math.max(field.x,field.y)/2;
     let interval = Math.max(field.x,field.y);
 
-    for (let i = 0; i<gridIterations;i++){
+    for (let i = 0; i<gridSettings.iterations;i++){
         interval = interval/2;
     }
 
+    let x = posVector.x;
+    let y = posVector.y;
 
     let yOffset = (field.y/2)%interval;
     let deltaX = x%interval;
@@ -441,8 +387,8 @@ document.addEventListener('keydown', function (e) {
     }
 
     if (e.code === "ControlLeft") { //toggle for grid
-        gridVisible = !gridVisible;
-        toggleGrid(gridVisible);
+        gridSettings.visible = !gridSettings.visible;
+        toggleGrid(gridSettings.visible);
     }
 
     if (e.code === "BracketRight") {
@@ -456,20 +402,15 @@ document.addEventListener('keydown', function (e) {
     }
 
     if (e.code === "KeyM") { //enables mirror divided by 4
-        mirrored = !mirrored;
+        globalSettings.mirrored = !globalSettings.mirrored;
     } //activates mirrors
-
-    if (e.code === "KeyP") {
-        tonsOfParticles = !tonsOfParticles;
-        console.log(tonsOfParticles);
-    } //amplifies or decreases particle count by 10x
 
     if (e.code === "KeyR") { //R for RESET
         reset();
     }
 
     if (e.code === "Space") {
-        motionActive = !motionActive;
+        globalSettings.motionActive = !globalSettings.motionActive;
         console.log("Spacebar");
     }
 
@@ -510,44 +451,61 @@ document.addEventListener('keydown', function (e) {
     }
 
     if (e.code === "KeyC") { //toggle cannon mode
-        cannonMode = !cannonMode;
+        globalSettings.cannonMode = !globalSettings.cannonMode;
     }
 
     if (e.code === "KeyF") {
-        cannonsActive = ! cannonsActive;
+        cannonSettings.active = !cannonSettings.active;
     }
 
     if (e.code === "KeyH") {
-        attractorsVisible = !attractorsVisible;
+        attractorSettings.visible = !attractorSettings.visible;
         toggleAttractors();
     }
 });
 
+particleLayerElem.addEventListener('mouseup', function(e){
+
+    let posVector = {x:e.offsetX,y:e.offsetY};
+
+    if (gridSettings.visible){
+        posVector = snapToNearestInterception(posVector);
+    }
+
+    if (e.button === 0){
+        if (globalSettings.cannonMode) {
+            newCannon(cannonSettings.positionSet, posVector);
+        }
+    }
+});
+
 particleLayerElem.addEventListener('mousedown', function (e) {
-    let x = e.offsetX;
-    let y = e.offsetY;
-    if (gridVisible){
-        let vector = snapToNearestInterception(x,y);
-        x = vector.x;
-        y = vector.y;
+    let posVector = {x:e.offsetX,y:e.offsetY};
+
+    if (gridSettings.visible){
+        posVector = snapToNearestInterception(posVector);
     }
     if (e.button === 0) {
-        if (cannonMode){
+        if (globalSettings.cannonMode){
             //console.log("New cannon");
-            let velVector = randomVelocity(1);
-            newCannon(x,y,velVector,0,10000,0.1);
+            cannonSettings.positionSet = posVector;
+
         }else {
-            newParticleGroup(x, y, 1000);
+
+            newParticleGroup(posVector.x,posVector.y);
         }
     }
     if (e.button === 2) {
-        newAttractor(x, y);
+        newAttractor(posVector);
     }
     console.log(e.button);
 });
 
 setInterval(function () {
-    if (motionActive) {
+    if (globalSettings.motionActive) {
+        if (!globalSettings.tracePath){
+            partCtx.clearRect(0,0,field.x,field.y);
+        }
         for (let i = 0; i < particles.length; i++) {
             let particle = particles[i];
             calcAcceleration(particle);
@@ -555,6 +513,8 @@ setInterval(function () {
             particle.velVector = addVectors(particle.velVector, particle.accVector);
         }
         drawParticles();
-        hue++;
+        if (particleSettings.rainbowMode) {
+            hue++;
+        }
     }
 }, 1000 / 200);
