@@ -69,7 +69,7 @@ function newCannon(posVector, dirVector){ //dirVector in this sense is the point
     let deviationDegree = cannonSettings.spread*1.8; //degree on how much particles are able to offset from the cannons fire direction
     let cannonDegree = getAngle(velVec.x,velVec.y);
     cannonDegree = 360 - cannonDegree + 90;
-    console.log(cannonDegree);
+    // console.log(cannonDegree);
     let particlesPerShot = cannonSettings.particlesPerShot; //particles per shot
     let speedDeviation = cannonSettings.velocityDeviation;
 
@@ -95,7 +95,7 @@ function newCannon(posVector, dirVector){ //dirVector in this sense is the point
             }
 
             if (particlesFired>=bullets){
-                console.log("cannon is done firing.");
+                // console.log("cannon is done firing.");
                 clearInterval(interval);
             }
         }
@@ -150,7 +150,7 @@ function newAttractor(posVector) {
     objectCtx.lineWidth = 5;
     objectCtx.strokeStyle = `rgba(255, 255, 255)`;
 
-    console.log("draw attractor");
+    // console.log("draw attractor");
     objectCtx.lineWidth = defaultLineWidth;
     attractors.push(attractor);
     drawAttractor(attractor);
@@ -333,9 +333,9 @@ function snapToNearestInterception(posVector){
     let deltaX = x%interval;
     let deltaY = y%(interval); //-yOffset/(field.y/interval)
 
-    console.log("yOffset: "+yOffset);
-    console.log("interval: "+interval,"fieldX: "+field.x,"fieldY: "+field.y);
-    console.log("deltaX",deltaX,"deltaY",deltaY);
+    // console.log("yOffset: "+yOffset);
+    // console.log("interval: "+interval,"fieldX: "+field.x,"fieldY: "+field.y);
+    // console.log("deltaX",deltaX,"deltaY",deltaY);
 
     if (deltaX<interval/2){
         x = x-deltaX;
@@ -358,7 +358,7 @@ document.addEventListener('keydown', function (e) {
 
         let x = window.innerWidth;
         let y = window.innerHeight;
-        console.log(x,y);
+        // console.log(x,y);
         let printCanvasElem = document.createElement("canvas");
         printCanvasElem.width = x;
         printCanvasElem.height = y;
@@ -407,7 +407,7 @@ document.addEventListener('keydown', function (e) {
 
     if (e.code === "Space") {
         globalSettings.motionActive = !globalSettings.motionActive;
-        console.log("Spacebar");
+        // console.log("Spacebar");
     }
 
     if (e.code === "Digit1") {
@@ -494,7 +494,7 @@ particleLayerElem.addEventListener('mousedown', function (e) {
     if (e.button === 2) {
         newAttractor(posVector);
     }
-    console.log(e.button);
+    // console.log(e.button);
 });
 
 setInterval(function () {
