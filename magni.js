@@ -1,7 +1,3 @@
-/**
- * The HTML Element of the Canvas
- * @type {HTMLCanvasElement}
- */
 const particleLayerElem = document.getElementById("particleLayer");
 const partCtx = particleLayerElem.getContext('2d');
 
@@ -19,11 +15,11 @@ let attractors = [];
 let attractorSettings = {visible:true};
 
 let cannons = [];
-let cannonSettings = {positionSet:{x:0,y:0},visible:true,active:false,shotsPerSecond:200,particlesPerShot:1,bullets:200,spread:50,veloctiyDeviation:0}; //spread: 0-200%, velocityDeviation: 0-100%,
+let cannonSettings = {positionSet:{x:0,y:0},visible:true,active:false,shotsPerSecond:200,particlesPerShot:1,bullets:200,spread:50,velocityDeviation:0}; //spread: 0-200%, velocityDeviation: 0-100%,
 
 let gridSettings = {visible: false, iterations: 5};
 
-let globalSettings = {motionActive:false, cannonMode:false, mirrored: false,tracePath:false};
+let globalSettings = {motionActive:false, cannonMode:false, mirrored: false,tracePath:true};
 
 //Variables that are used more frequently are not put in the globalSettings variable due to performance optimization
 let G = 1; //Gravitational constant
@@ -75,7 +71,7 @@ function newCannon(posVector, dirVector){ //dirVector in this sense is the point
     cannonDegree = 360 - cannonDegree + 90;
     console.log(cannonDegree);
     let particlesPerShot = cannonSettings.particlesPerShot; //particles per shot
-    let speedDeviation = cannonSettings.veloctiyDeviation;
+    let speedDeviation = cannonSettings.velocityDeviation;
 
 
     let interval = setInterval(function(){

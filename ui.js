@@ -3,23 +3,21 @@ let keymapIsShown = false;
 let uiIsDisabled = false;
 
 window.addEventListener('keydown', function (e) {
-    if(!uiIsDisabled){
+    if (!uiIsDisabled) {
         if (e.code === "ShiftLeft") {
-            if (optionsIsShown || keymapIsShown){
+            if (optionsIsShown || keymapIsShown) {
                 hideUI();
             } else {
                 showUI();
             }
-        }
-        else if (e.code === "KeyO") {
+        } else if (e.code === "KeyO") {
             toggleOptions();
-        }
-        else if(e.code === "KeyK"){
+        } else if (e.code === "KeyK") {
             toggleKeyMap();
         }
     }
-    if(e.code === "KeyH"){
-        if (uiIsDisabled){
+    if (e.code === "KeyH") {
+        if (uiIsDisabled) {
             enableUI();
         } else {
             disableUI();
@@ -27,7 +25,7 @@ window.addEventListener('keydown', function (e) {
     }
 });
 
-function enableUI(){
+function enableUI() {
     $('.icon-open.left').show();
     $('.icon-open.right').show();
     uiIsDisabled = false;
@@ -121,16 +119,16 @@ gridRangeValue.text(gridRange.val());
 
 gridRange.on("slide, click", () => {
     gridRangeValue.text(gridRange.val());
-    gridIterations = parseInt(gridRange.val());
+    gridSettings.gridIterations = parseInt(gridRange.val());
 });
 
 let lineWidthRange = $("#lineWidthRange");
 let lineWidthRangeValue = $("#lineWidthRange-value");
 
-lineWidthRange.val(particleLineWidth);
-lineWidthRangeValue.text(particleLineWidth);
+lineWidthRange.val(particleSettings.lineWidth);
+lineWidthRangeValue.text(particleSettings.lineWidth);
 
 lineWidthRange.on("slide click", () => {
-    lineWidthRangeValue.text(lineWidthRange.val())
-    particleLineWidth = parseInt(lineWidthRange.val());
+    lineWidthRangeValue.text(lineWidthRange.val());
+    particleSettings.lineWidth = parseInt(lineWidthRange.val());
 });
