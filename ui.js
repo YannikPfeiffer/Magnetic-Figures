@@ -186,3 +186,11 @@ deployCountInput.val(particleSettings.deployCount);
 deployCountInput.on("change", () => {
     particleSettings.deployCount = deployCountInput.val();
 });
+
+let shotsPerSecondInput = $("#shotsPerSecond-input");
+
+shotsPerSecondInput.val(cannonSettings.shotsPerSecond);
+
+shotsPerSecondInput.on("change", () => {
+    cannonSettings.shotsPerSecond = shotsPerSecondInput.val();
+});
