@@ -133,6 +133,17 @@ lineWidthRange.on("slide click", () => {
     particleSettings.lineWidth = parseInt(lineWidthRange.val());
 });
 
+let opacityRange = $("#opacityRange");
+let opacityRangeValue = $("#opacityRange-value");
+
+opacityRange.val(particleOpacity);
+opacityRangeValue.text(opacityRange.val());
+
+opacityRange.on("click slide", () => {
+    opacityRangeValue.text(opacityRange.val());
+    console.log((particleOpacity = parseFloat(opacityRange.val())));
+});
+
 //===============================================================================
 //                              Checkbox-Setup
 //===============================================================================
