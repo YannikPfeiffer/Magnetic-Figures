@@ -144,3 +144,11 @@ pathCheckbox.prop("checked", globalSettings.tracePath);
 pathCheckbox.on("click", () => {
     globalSettings.tracePath = !globalSettings.tracePath;
 });
+
+let rainbowCheckbox = $("#rainbowCheckbox");
+
+rainbowCheckbox.prop("checked", particleSettings.rainbowMode);
+
+rainbowCheckbox.on("click", () => {
+    particleSettings.rainbowMode = !particleSettings.rainbowMode;
+});
