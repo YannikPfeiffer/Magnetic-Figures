@@ -141,7 +141,18 @@ opacityRangeValue.text(opacityRange.val());
 
 opacityRange.on("click slide", () => {
     opacityRangeValue.text(opacityRange.val());
-    console.log((particleOpacity = parseFloat(opacityRange.val())));
+    particleOpacity = parseFloat(opacityRange.val());
+});
+
+let spreadRange = $("#spreadRange");
+let spreadRangeValue = $("#spreadRange-value");
+
+spreadRange.val(cannonSettings.spread);
+spreadRangeValue.text(spreadRange.val());
+
+spreadRange.on("slide click", () => {
+    spreadRangeValue.text(spreadRange.val());
+    cannonSettings.spread = parseInt(spreadRange.val());
 });
 
 //===============================================================================
