@@ -132,3 +132,15 @@ lineWidthRange.on("slide click", () => {
     lineWidthRangeValue.text(lineWidthRange.val());
     particleSettings.lineWidth = parseInt(lineWidthRange.val());
 });
+
+//===============================================================================
+//                              Checkbox-Setup
+//===============================================================================
+
+let pathCheckbox = $("#pathCheckbox");
+
+pathCheckbox.prop("checked", globalSettings.tracePath);
+
+pathCheckbox.on("click", () => {
+    globalSettings.tracePath = !globalSettings.tracePath;
+});
