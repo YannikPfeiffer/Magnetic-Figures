@@ -35,3 +35,10 @@ html, body{
     margin: 0;
     padding: 0;
 }
+
+#deployCount-input {
+    width: 100%;
+    border-radius: 5px;
+    border: #4343ac 2px solid;
+    height: 85%;
+}

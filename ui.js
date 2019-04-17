@@ -163,3 +163,15 @@ rainbowCheckbox.prop("checked", particleSettings.rainbowMode);
 rainbowCheckbox.on("click", () => {
     particleSettings.rainbowMode = !particleSettings.rainbowMode;
 });
+
+//===============================================================================
+//                              NumberInput-Setup
+//===============================================================================
+
+let deployCountInput = $("#deployCount-input");
+
+deployCountInput.val(particleSettings.deployCount);
+
+deployCountInput.on("change", () => {
+    particleSettings.deployCount = deployCountInput.val();
+});
