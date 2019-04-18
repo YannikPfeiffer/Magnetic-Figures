@@ -101,13 +101,14 @@ function updateGravitationRange() {
 //===============================================================================
 //                              Slider-Setup
 //===============================================================================
+const eventTypes = "slide click change";
 
 let gravitationRange = $("#gravitationRange");
 let gravitationRangeValue = $("#gravitationRange-value");
 
 updateGravitationRange();
 
-gravitationRange.on("slide click", () => {
+gravitationRange.on(eventTypes, () => {
     G = calculateG(gravitationRange.val());
     updateGravitationRange();
 });
@@ -117,7 +118,7 @@ let gridRangeValue = $("#gridRange-value");
 
 gridRangeValue.text(gridRange.val());
 
-gridRange.on("slide, click", () => {
+gridRange.on(eventTypes, () => {
     gridRangeValue.text(gridRange.val());
     gridSettings.gridIterations = parseInt(gridRange.val());
 });
@@ -128,7 +129,7 @@ let lineWidthRangeValue = $("#lineWidthRange-value");
 lineWidthRange.val(particleSettings.lineWidth);
 lineWidthRangeValue.text(particleSettings.lineWidth);
 
-lineWidthRange.on("slide click", () => {
+lineWidthRange.on(eventTypes, () => {
     lineWidthRangeValue.text(lineWidthRange.val());
     particleSettings.lineWidth = parseInt(lineWidthRange.val());
 });
@@ -139,7 +140,7 @@ let opacityRangeValue = $("#opacityRange-value");
 opacityRange.val(particleOpacity);
 opacityRangeValue.text(opacityRange.val());
 
-opacityRange.on("click slide", () => {
+opacityRange.on(eventTypes, () => {
     opacityRangeValue.text(opacityRange.val());
     particleOpacity = parseFloat(opacityRange.val());
 });
@@ -150,7 +151,7 @@ let spreadRangeValue = $("#spreadRange-value");
 spreadRange.val(cannonSettings.spread);
 spreadRangeValue.text(spreadRange.val());
 
-spreadRange.on("slide click", () => {
+spreadRange.on(eventTypes, () => {
     spreadRangeValue.text(spreadRange.val());
     cannonSettings.spread = parseInt(spreadRange.val());
 });
